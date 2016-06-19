@@ -8,6 +8,19 @@ namespace AIMPPL_Copy
         public string Path;
         public List<Song> Songs;
 
+        public string Name
+        {
+            get
+            {
+                var lastIndex = Path.LastIndexOf('\\');
+                if (lastIndex == -1)
+                {
+                    lastIndex = Path.LastIndexOf('/');
+                }
+                return Path.Substring(lastIndex + 1);
+            }
+        }
+
         private Cover cover;
         public Cover Cover
         {
@@ -111,12 +124,7 @@ namespace AIMPPL_Copy
 
         public override string ToString()
         {
-            var lastIndex = Path.LastIndexOf('\\');
-            if (lastIndex == -1)
-            {
-                lastIndex = Path.LastIndexOf('/');
-            }
-            return Path.Substring(lastIndex + 1);
+            return Name;
         }
     }
 }

@@ -5,5 +5,8 @@
     <Setting Name="PlaylistPath" Type="System.String" Scope="User">
       <Value Profile="(Default)">&lt;default&gt;</Value>
     </Setting>
+    <Setting Name="DestinationPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">&lt;default&gt;</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

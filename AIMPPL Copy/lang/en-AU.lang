@@ -1,0 +1,36 @@
+Australian English
+Full interface in colourful language.
+ApexWeed
+TITLE.MAIN = AIMPPL Copy
+MAIN.BUTTON.COPY = Copy
+MAIN.TOOLTIP.COPY = Copy songs to new location.
+MAIN.LABEL.PLAYLISTS = Playlists
+MAIN.LABEL.SONGS = Songs
+MAIN.LABEL.PLAYLIST_GROUP = Playlist
+MAIN.LABEL.GROUP_COUNT = Group
+MAIN.LABEL.SONG_COUNT = Song
+MAIN.LABEL.PLAYLIST_DURATION = Duration: {0:dd\:hh\:mm\:ss}
+MAIN.LABEL.PLAYLIST_SIZE = Size: {0}
+MAIN.LABEL.PLAYLIST_COVER_SIZE = Cover Size: {0}
+MAIN.LABEL.PLAYLIST_SCAN_SIZE = Scan Size: {0}
+MAIN.LABEL.SONG_GROUP = Song
+MAIN.LABEL.SONG_ARTIST = Artist: {0}
+MAIN.LABEL.SONG_ALBUM = Album: {0}
+MAIN.LABEL.SONG_TITLE = Title: {0}
+MAIN.LABEL.SONG_SIZE = Size: {0}
+MAIN.LABEL.SONG_TRACKNO = Track: {0}
+MAIN.LABEL.SONG_DURATION = Duration: {0:dd\:hh\:mm\:ss}
+MAIN.LABEL.GROUP_GROUP = Group
+MAIN.LABEL.GROUP_SIZE = Size: {0}
+MAIN.LABEL.GROUP_SONG_COUNT = Songs: {0}
+MAIN.LABEL.GROUP_DURATION = Duration: {0:dd\:hh\:mm\:ss}
+MAIN.LABEL.GROUP_COVER_SIZE = Cover Size: {0}
+MAIN.LABEL.GROUP_SCAN_SIZE = Scan Size: {0}
+MAIN.LABEL.COPY_SONGS = Copy Songs
+MAIN.LABEL.COPY_ALBUMS = Copy Albums
+MAIN.LABEL.COPY_SCANS = Copy Albums + Scans
+MAIN.MESSAGE.DONE = Done
+MAIN.PROMPT.PLAYLIST = AIMP Playlist Folder
+MAIN.PROMPT.PLAYLIST_DESC = Select the AIMP playlist folder.
+MAIN.PROMPT.DEST = Select Destination
+MAIN.PROMPT.DEST_DESC = Select where to copy the songs to.

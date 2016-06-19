@@ -13,16 +13,20 @@ namespace AIMPPL_Copy
         public string Name;
         public List<Group> Groups;
 
-        public int SongCount
+        private List<Song> songs;
+        public List<Song> Songs
         {
             get
             {
-                var count = 0;
-                foreach (var group in Groups)
+                if (songs == null)
                 {
-                    count += group.Songs.Count;
+                    songs = new List<Song>();
+                    foreach (var group in Groups)
+                    {
+                        songs.AddRange(group.Songs);
+                    }
                 }
-                return count;
+                return songs;
             }
         }
 

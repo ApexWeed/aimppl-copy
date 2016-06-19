@@ -161,7 +161,7 @@
             this.grpGroup.Controls.Add(this.lblGroupSongCount);
             this.grpGroup.Controls.Add(this.lblGroupSize);
             this.grpGroup.DefaultString = null;
-            this.grpGroup.Location = new System.Drawing.Point(535, 236);
+            this.grpGroup.Location = new System.Drawing.Point(535, 130);
             this.grpGroup.Name = "grpGroup";
             this.grpGroup.Size = new System.Drawing.Size(237, 100);
             this.grpGroup.TabIndex = 12;
@@ -238,7 +238,7 @@
             this.grpSong.Controls.Add(this.lblSongArtist);
             this.grpSong.Controls.Add(this.lblSongSize);
             this.grpSong.DefaultString = null;
-            this.grpSong.Location = new System.Drawing.Point(535, 130);
+            this.grpSong.Location = new System.Drawing.Point(535, 236);
             this.grpSong.Name = "grpSong";
             this.grpSong.Size = new System.Drawing.Size(237, 100);
             this.grpSong.TabIndex = 11;

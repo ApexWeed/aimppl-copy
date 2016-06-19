@@ -75,9 +75,10 @@ namespace AIMPPL_Copy
         public static string FindCover(string Path)
         {
             var searchFiles = new string[] { "cover", "jacket" };
-            var searchExtensions = new string[] { "jpg", "png" };
+            var searchExtensions = new string[] { "jpg", "png", "bmp" };
             var files = Directory.GetFiles(Path);
 
+            // Try common cover files.
             foreach (var file in searchFiles)
             {
                 foreach (var ext in searchExtensions)
@@ -89,6 +90,7 @@ namespace AIMPPL_Copy
                 }
             }
 
+            // Try to find some sort of image.
             foreach (var file in files)
             {
                 foreach (var ext in searchExtensions)
@@ -100,7 +102,66 @@ namespace AIMPPL_Copy
                 }
             }
 
+            // Give up.
             return null;
+        }
+
+        /// <summary>
+        /// Attempts to find the album scans for the specified folder. Tries common folder names and then looks for images in the folder.
+        /// </summary>
+        /// <param name="Path"></param>
+        /// <returns></returns>
+        public static List<Scan> FindScans(string Path)
+        {
+            var searchExtensions = new string[] { "jpg", "png", "bmp" };
+            var searchDirectories = new string[] { "scan", "scans", "Scan", "Scans", "BK", "bk", "bkv0" };
+            var scans = new List<Scan>();
+            var directories = Directory.GetDirectories(Path);
+
+            // Try common directories.
+            foreach (var directory in directories)
+            {
+                foreach (var searchDir in searchDirectories)
+                {
+                    if (directory.EndsWith(searchDir))
+                    {
+                        foreach (var file in Directory.GetFiles(directory))
+                        {
+                            foreach (var ext in searchExtensions)
+                            {
+                                if (file.EndsWith(ext))
+                                {
+                                    scans.Add(new Scan(file));
+                                    break;
+                                }
+                            }
+                        }
+                        return scans;
+                    }
+                }
+            }
+
+            // Search the album folder.
+            var files = Directory.GetFiles(Path);
+            // Don't return the cover image as a scan.
+            var cover = FindCover(Path);
+            foreach (var file in files)
+            {
+                foreach (var ext in searchExtensions)
+                {
+                    if (file.EndsWith(ext))
+                    {
+                        if (file != cover)
+                        {
+                            scans.Add(new Scan(file));
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Return found scans if any.
+            return scans;
         }
     }
 }

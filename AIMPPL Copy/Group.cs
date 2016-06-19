@@ -21,6 +21,32 @@ namespace AIMPPL_Copy
             }
         }
 
+        private List<Scan> scans;
+        public List<Scan> Scans
+        {
+            get
+            {
+                if (scans == null)
+                {
+                    scans = Util.FindScans(Path);
+                }
+                return scans;
+            }
+        }
+
+        public long ScanSize
+        {
+            get
+            {
+                var size = 0L;
+                foreach (var scan in Scans)
+                {
+                    size += scan.Size;
+                }
+                return size;
+            }
+        }
+
         public long Size
         {
             get

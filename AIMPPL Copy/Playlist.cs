@@ -52,19 +52,53 @@ namespace AIMPPL_Copy
             }
         }
 
+        private List<Cover> covers;
         public List<Cover> Covers
         {
             get
             {
-                var covers = new List<Cover>();
-                foreach (var group in Groups)
+                if (covers == null)
                 {
-                    if (group.Cover.Size > 0)
+                    covers = new List<Cover>();
+                    foreach (var group in Groups)
                     {
-                        covers.Add(group.Cover);
+                        if (group.Cover.Size > 0)
+                        {
+                            covers.Add(group.Cover);
+                        }
                     }
                 }
                 return covers;
+            }
+        }
+
+        private List<Scan> scans;
+        public List<Scan> Scans
+        {
+            get
+            {
+                if (scans == null)
+                {
+                    scans = new List<Scan>();
+                    foreach (var group in Groups)
+                    {
+                        scans.AddRange(group.Scans);
+                    }
+                }
+                return scans;
+            }
+        }
+
+        public long ScanSize
+        {
+            get
+            {
+                var size = 0L;
+                foreach (var scan in Scans)
+                {
+                    size += scan.Size;
+                }
+                return size;
             }
         }
 

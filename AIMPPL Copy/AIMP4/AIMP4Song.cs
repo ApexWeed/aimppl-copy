@@ -57,8 +57,8 @@ namespace AIMPPL_Copy.AIMP4
         }
         public override int Bitrate
         {
-            get { return int.Parse(parts[9]); }
-            set { parts[9] = value.ToString(); }
+            get { return int.Parse(parts[11]); }
+            set { parts[11] = value.ToString(); }
         }
         public override int Channels
         {

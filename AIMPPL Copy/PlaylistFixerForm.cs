@@ -24,12 +24,12 @@ namespace AIMPPL_Copy
         private string[] extensions = new string[]
         {
             "flac",
+            "mp3",
             "alac",
             "tak",
             "ape",
             "wav",
             "ogg",
-            "mp3",
             "m4a",
         };
 
@@ -177,23 +177,37 @@ namespace AIMPPL_Copy
             // Only trigger off the button.
             if (e.ColumnIndex == clmBrowse.Index)
             {
-                var path = dgvMissing.Rows[e.RowIndex].Cells[clmDestination.Index].Value.ToString();
-                if (string.IsNullOrWhiteSpace(path))
-                {
-                    ofdBrowse.FileName = "";
-                    ofdBrowse.InitialDirectory = Path.GetDirectoryName(dgvMissing.Rows[e.RowIndex].Cells[clmSource.Index].Value.ToString());
-                }
-                else
-                {
-                    ofdBrowse.FileName = path;
-                    ofdBrowse.InitialDirectory = Path.GetDirectoryName(path);
-                }
-                
-                if (ofdBrowse.ShowDialog() == DialogResult.OK)
-                {
-                    dgvMissing.Rows[e.RowIndex].Cells[clmDestination.Index].Value = ofdBrowse.FileName;
-                    dgvMissing.Rows[e.RowIndex].Cells[clmChange.Index].Value = true;
-                }
+                SelectReplacement(e.RowIndex);
+            }
+        }
+
+        private void dgvMissing_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            // Only trigger double clicks on the destination.
+            if (e.ColumnIndex == clmDestination.Index)
+            {
+                SelectReplacement(e.RowIndex);
+            }
+        }
+
+        private void SelectReplacement(int Index)
+        {
+            var path = dgvMissing.Rows[Index].Cells[clmDestination.Index].Value.ToString();
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                FileDialogue.FileName = "";
+                FileDialogue.InitialDirectory = Path.GetDirectoryName(dgvMissing.Rows[Index].Cells[clmSource.Index].Value.ToString());
+            }
+            else
+            {
+                FileDialogue.FileName = path;
+                FileDialogue.InitialDirectory = Path.GetDirectoryName(path);
+            }
+
+            if (FileDialogue.ShowDialog() == DialogResult.OK)
+            {
+                dgvMissing.Rows[Index].Cells[clmDestination.Index].Value = FileDialogue.FileName;
+                dgvMissing.Rows[Index].Cells[clmChange.Index].Value = true;
             }
         }
 
@@ -238,6 +252,51 @@ namespace AIMPPL_Copy
             }
 
             playlist.Save();
+        }
+
+        private void PlaylistFixerForm_Resize(object sender, EventArgs e)
+        {
+            pnlBottomLeft.Width = pnlBottom.Width / 2;
+        }
+
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            if (DirectoryDialogue.ShowDialog() == DialogResult.OK)
+            {
+                var files = Apex.FileUtil.GetFiles(DirectoryDialogue.SelectedPath);
+                var songs = dgvMissing.Rows.Cast<DataGridViewRow>().Where((x) => !(bool)(x.Cells[clmChange.Index].Value)).Select((x) => new Tuple<Song, int>(x.Cells[clmSongBind.Index].Value as Song, x.Index)).ToList();
+
+                // Try to find the song in the search directory.
+                foreach (var song in songs)
+                {
+                    var found = false;
+                    // In theory, FLAC and MP3 files are much more likely to be found so prioritise searching by
+                    // extension rather than trying each extension on each file one after the other.
+                    foreach (var extension in extensions)
+                    {
+                        if (found)
+                        {
+                            continue;
+                        }
+
+                        foreach (var file in files)
+                        {
+                            if (found)
+                            {
+                                continue;
+                            }
+
+                            // Update the data grid with the new filename if we found it.
+                            if (Path.GetFileName(Path.ChangeExtension(song.Item1.Path, extension)) == Path.GetFileName(file))
+                            {
+                                dgvMissing.Rows[song.Item2].Cells[clmDestination.Index].Value = file;
+                                dgvMissing.Rows[song.Item2].Cells[clmChange.Index].Value = true;
+                                found = true;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

@@ -61,6 +61,9 @@
             this.lblSongs = new Apex.Translation.Controls.TranslatableLabel();
             this.lblPlaylists = new Apex.Translation.Controls.TranslatableLabel();
             this.MainTitle = new Apex.Translation.Controls.TranslatableTitle();
+            this.btnFixPlaylist = new Apex.Translation.Controls.TranslatableButton();
+            this.TooltipTranslator = new Apex.Translation.Controls.TranslatableTooltips();
+            this.Tooltips = new System.Windows.Forms.ToolTip(this.components);
             this.grpGroup.SuspendLayout();
             this.grpSong.SuspendLayout();
             this.grpPlaylist.SuspendLayout();
@@ -435,11 +438,30 @@
             this.MainTitle.ParentForm = this;
             this.MainTitle.TranslationString = "TITLE.MAIN";
             // 
+            // btnFixPlaylist
+            // 
+            this.btnFixPlaylist.DefaultString = null;
+            this.btnFixPlaylist.Location = new System.Drawing.Point(616, 408);
+            this.btnFixPlaylist.Name = "btnFixPlaylist";
+            this.btnFixPlaylist.Size = new System.Drawing.Size(156, 23);
+            this.btnFixPlaylist.TabIndex = 18;
+            this.btnFixPlaylist.Text = "MAIN.BUTTON.FIX_PLAYLIST";
+            this.btnFixPlaylist.TranslationString = "MAIN.BUTTON.FIX_PLAYLIST";
+            this.btnFixPlaylist.UseVisualStyleBackColor = true;
+            this.btnFixPlaylist.Click += new System.EventHandler(this.btnFixPlaylist_Click);
+            // 
+            // TooltipTranslator
+            // 
+            this.TooltipTranslator.DefaultStrings = ((System.Collections.Generic.Dictionary<System.Windows.Forms.Control, string>)(resources.GetObject("TooltipTranslator.DefaultStrings")));
+            this.TooltipTranslator.ToolTips = this.Tooltips;
+            this.TooltipTranslator.TranslationStrings = ((System.Collections.Generic.Dictionary<System.Windows.Forms.Control, string>)(resources.GetObject("TooltipTranslator.TranslationStrings")));
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(784, 477);
+            this.Controls.Add(this.btnFixPlaylist);
             this.Controls.Add(this.pgbProgress);
             this.Controls.Add(this.btnCopy);
             this.Controls.Add(this.rdbScans);
@@ -500,6 +522,9 @@
         private Apex.Translation.Controls.TranslatableButton btnCopy;
         private Apex.Controls.InfoProgressBar pgbProgress;
         private Apex.Translation.Controls.TranslatableTitle MainTitle;
+        private Apex.Translation.Controls.TranslatableButton btnFixPlaylist;
+        private Apex.Translation.Controls.TranslatableTooltips TooltipTranslator;
+        private System.Windows.Forms.ToolTip Tooltips;
     }
 }
 

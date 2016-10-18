@@ -1,11 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace AIMPPL_Copy
 {
     public class Group
     {
-        public string Path;
+        public virtual string Path
+        {
+            get { return ""; }
+            set { }
+        }
         public List<Song> Songs;
 
         public string Name
@@ -21,7 +26,7 @@ namespace AIMPPL_Copy
             }
         }
 
-        private Cover cover;
+        protected Cover cover;
         public Cover Cover
         {
             get
@@ -34,7 +39,7 @@ namespace AIMPPL_Copy
             }
         }
 
-        private List<Scan> scans;
+        protected List<Scan> scans;
         public List<Scan> Scans
         {
             get
@@ -86,40 +91,12 @@ namespace AIMPPL_Copy
             }
         }
 
-        // #Group:Path|1
-        public Group(StreamReader Reader)
+        public virtual string PlaylistFormat
         {
-            Songs = new List<Song>();
-
-            var line = Reader.ReadLine();
-            if (string.IsNullOrWhiteSpace(line))
+            get
             {
-                return;
+                throw new NotImplementedException();
             }
-            var variable = line.Substring(1, line.IndexOf(':') - 1);
-            var value = line.Substring(variable.Length + 2);
-            // No idea what that number on the end is for.
-            Path = value.Split('|')[0];
-
-            do
-            {
-                var pos = Util.GetActualPosition(Reader);
-                line = Reader.ReadLine();
-                variable = line.Substring(1, line.IndexOf(':') - 1);
-                value = line.Substring(variable.Length + 2);
-
-                if (variable == "Track")
-                {
-                    var song = new Song(value);
-                    Songs.Add(song);
-                }
-                else
-                {
-                    // Read past the end of the group, rewind stream and stop.
-                    Util.SetActualPosition(Reader, pos);
-                    break;
-                }
-            } while (!Reader.EndOfStream);
         }
 
         public override string ToString()

@@ -9,9 +9,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>AIMPPL_Copy</RootNamespace>
     <AssemblyName>AIMPPL Copy</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -33,7 +34,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Apex">
+    <Reference Include="Apex, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Apex\Apex\bin\Debug\Apex.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -49,7 +51,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AIMP3\AIMP3Group.cs" />
+    <Compile Include="AIMP3\AIMP3Playlist.cs" />
+    <Compile Include="AIMP3\AIMP3Song.cs" />
+    <Compile Include="AIMP4\AIMP4Group.cs" />
+    <Compile Include="AIMP4\AIMP4Playlist.cs" />
+    <Compile Include="AIMP4\AIMP4Song.cs" />
     <Compile Include="Cover.cs" />
+    <Compile Include="FormatChange.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -58,6 +67,12 @@
     </Compile>
     <Compile Include="Group.cs" />
     <Compile Include="Playlist.cs" />
+    <Compile Include="PlaylistFixerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PlaylistFixerForm.Designer.cs">
+      <DependentUpon>PlaylistFixerForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scan.cs" />
@@ -65,6 +80,9 @@
     <Compile Include="Util.cs" />
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PlaylistFixerForm.resx">
+      <DependentUpon>PlaylistFixerForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -74,6 +92,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="lang\en-AU.lang">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -97,6 +116,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

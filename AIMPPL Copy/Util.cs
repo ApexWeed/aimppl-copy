@@ -18,22 +18,22 @@ namespace AIMPPL_Copy
             char[] charBuffer = (char[])reader.GetType().InvokeMember("charBuffer", flags, null, reader, null);
 
             // The index of the next char to be read from charBuffer
-            int charPos = (int)reader.GetType().InvokeMember("charPos", flags, null, reader, null);
+            var charPos = (int)reader.GetType().InvokeMember("charPos", flags, null, reader, null);
 
             // The number of decoded chars presently used in charBuffer
-            int charLen = (int)reader.GetType().InvokeMember("charLen", flags, null, reader, null);
+            var charLen = (int)reader.GetType().InvokeMember("charLen", flags, null, reader, null);
 
             // The current buffer of read bytes (byteBuffer.Length = 1024; this is critical).
             byte[] byteBuffer = (byte[])reader.GetType().InvokeMember("byteBuffer", flags, null, reader, null);
 
             // The number of bytes read while advancing reader.BaseStream.Position to (re)fill charBuffer
-            int byteLen = (int)reader.GetType().InvokeMember("byteLen", flags, null, reader, null);
+            var byteLen = (int)reader.GetType().InvokeMember("byteLen", flags, null, reader, null);
 
             // The number of bytes the remaining chars use in the original encoding.
-            int numBytesLeft = reader.CurrentEncoding.GetByteCount(charBuffer, charPos, charLen - charPos);
+            var numBytesLeft = reader.CurrentEncoding.GetByteCount(charBuffer, charPos, charLen - charPos);
 
             // For variable-byte encodings, deal with partial chars at the end of the buffer
-            int numFragments = 0;
+            var numFragments = 0;
             if (byteLen > 0 && !reader.CurrentEncoding.IsSingleByte)
             {
                 if (reader.CurrentEncoding.CodePage == 65001) // UTF-8
@@ -74,8 +74,14 @@ namespace AIMPPL_Copy
         /// <returns>The path to the cover or null if none are found.</returns>
         public static string FindCover(string Path)
         {
-            var searchFiles = new string[] { "cover", "jacket" };
-            var searchExtensions = new string[] { "jpg", "png", "bmp" };
+            // Account for non existant folders.
+            if (!Directory.Exists(Path))
+            {
+                return null;
+            }
+
+            var searchFiles = new string[] { "cover", "jacket", "folder" };
+            var searchExtensions = new string[] { "jpg", "png", "jpeg", "bmp" };
             var files = Directory.GetFiles(Path);
 
             // Try common cover files.
@@ -113,6 +119,12 @@ namespace AIMPPL_Copy
         /// <returns></returns>
         public static List<Scan> FindScans(string Path)
         {
+            // Account for non existant folders.
+            if (!Directory.Exists(Path))
+            {
+                return new List<Scan>();
+            }
+
             var searchExtensions = new string[] { "jpg", "png", "bmp" };
             var searchDirectories = new string[] { "scan", "scans", "Scan", "Scans", "BK", "bk", "bkv0" };
             var scans = new List<Scan>();

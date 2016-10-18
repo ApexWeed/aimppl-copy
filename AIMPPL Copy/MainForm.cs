@@ -20,6 +20,7 @@ namespace AIMPPL_Copy
     {
         private Dictionary<string, int> CoverMap;
         private LanguageManager LM;
+        private PlaylistFixerForm playlistFixerForm;
 
         public MainForm()
         {
@@ -86,11 +87,36 @@ namespace AIMPPL_Copy
                 }
             }
 
+            TooltipTranslator.UpdateControl(btnCopy, "MAIN.TOOLTIP.COPY");
+            TooltipTranslator.UpdateControl(btnFixPlaylist, "MAIN.TOOLTIP.FIX_PLAYLIST");
+            TooltipTranslator.LanguageManager = LM;
+
             CoverMap = new Dictionary<string, int>();
+            // Load thumbnails to speed it up zoom zoom.
+            if (File.Exists("thumbs.dat"))
+            {
+                using (var fs = File.Open("thumbs.dat", FileMode.Open))
+                {
+                    using (var r = new BinaryReader(fs))
+                    {
+                        var count = r.ReadInt32();
+                        for (int i = 0; i < count; i++)
+                        {
+                            var path = r.ReadString();
+                            var length = r.ReadInt32();
+                            using (var ms = new MemoryStream(r.ReadBytes(length)))
+                            {
+                                var img = Image.FromStream(ms);
+                                AddCover(img, path);
+                            }
+                        }
+                    }
+                }
+            }
 
             if (Properties.Settings.Default.PlaylistPath == "<default>")
             {
-                var prompt = new FolderPicker("AIMP Playlist Folder", "Select the AIMP playlist folder.", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AIMP3\\PLS"));
+                var prompt = new FolderPicker("AIMP Playlist Folder", "Select the AIMP playlist folder.", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AIMP\\PLS"));
                 if (prompt.ShowDialog() == DialogResult.OK)
                 {
                     Properties.Settings.Default.PlaylistPath = prompt.ChosenFolder;
@@ -105,13 +131,21 @@ namespace AIMPPL_Copy
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            // AIMP3 playlists.
             foreach (var file in Directory.GetFiles(Properties.Settings.Default.PlaylistPath, "*.aimppl"))
             {
-                var playlist = new Playlist(file);
+                var playlist = new AIMP3.AIMP3Playlist(file);
+                lstPlaylists.Items.Add(playlist);
+            }
+            // AIMP4 playlists.
+            foreach (var file in Directory.GetFiles(Properties.Settings.Default.PlaylistPath, "*.aimppl4"))
+            {
+                var playlist = new AIMP4.AIMP4Playlist(file);
                 lstPlaylists.Items.Add(playlist);
             }
             if (lstPlaylists.Items.Count > 0)
             {
+                lstPlaylists.Sorted = true;
                 lstPlaylists.SelectedIndex = 0;
             }
         }
@@ -130,13 +164,17 @@ namespace AIMPPL_Copy
             treSongs.Nodes.Clear();
             foreach (var group in playlist.Groups)
             {
-                var groupNode = new TreeNode(group.ToString());
-                groupNode.Tag = group;
+                var groupNode = new TreeNode(group.ToString())
+                {
+                    Tag = group
+                };
                 foreach (var song in group.Songs)
                 {
-                    var songNode = new TreeNode(song.ToString());
-                    songNode.Tag = song;
-                    songNode.ImageIndex = -1;
+                    var songNode = new TreeNode(song.ToString())
+                    {
+                        Tag = song,
+                        ImageIndex = -1
+                    };
                     groupNode.Nodes.Add(songNode);
                 }
                 groupNode.ImageIndex = GetCover(group);
@@ -169,16 +207,40 @@ namespace AIMPPL_Copy
             {
                 var img = Image.FromFile(path);
                 var small = Utilities.ResizeImage(img, 16, 16);
-                CoverMap.Add(path, imlCovers.Images.Count);
-                imlCovers.Images.Add(small);
-                img.Dispose();
-                return imlCovers.Images.Count - 1;
+                return AddCover(small, path);
             }
+        }
+
+        private int AddCover(Image Cover, string Path)
+        {
+            CoverMap.Add(Path, imlCovers.Images.Count);
+            imlCovers.Images.Add(Cover);
+            Cover.Dispose();
+            return imlCovers.Images.Count - 1;
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             Properties.Settings.Default.Save();
+            using (var fs = File.Open("thumbs.dat", FileMode.Create))
+            {
+                using (var w = new BinaryWriter(fs))
+                {
+                    // Save cover count, then filename and BMP pairs.
+                    w.Write(CoverMap.Count);
+                    foreach (var image in CoverMap)
+                    {
+                        w.Write($"{image.Key}");
+                        using (var ms = new MemoryStream())
+                        {
+                            imlCovers.Images[image.Value].Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                            var bytes = ms.ToArray();
+                            w.Write(bytes.Length);
+                            w.Write(bytes);
+                        }
+                    }
+                }
+            }
         }
 
         private async void btnCopy_Click(object sender, EventArgs e)
@@ -207,6 +269,7 @@ namespace AIMPPL_Copy
                     await CopyScans(Properties.Settings.Default.DestinationPath, playlist);
                 }
             }
+            prompt.Dispose();
         }
 
         /// <summary>
@@ -368,6 +431,31 @@ namespace AIMPPL_Copy
             lblGroupScanSize.Parameters = new object[] { Formatting.FormatBytes(group.ScanSize) };
             lblGroupSongCount.Parameters = new object[] { group.Songs.Count };
             lblGroupSize.Parameters = new object[] { Formatting.FormatBytes(group.Size) };
+        }
+
+        private void btnFixPlaylist_Click(object sender, EventArgs e)
+        {
+            if (lstPlaylists.SelectedItem != null && lstPlaylists.SelectedItem is Playlist)
+            {
+                if (playlistFixerForm == null)
+                {
+                    playlistFixerForm = new PlaylistFixerForm(LM, lstPlaylists.SelectedItem as Playlist, this);
+                    playlistFixerForm.Show();
+                }
+                else
+                {
+                    playlistFixerForm.LoadPlaylist(lstPlaylists.SelectedItem as Playlist);
+                    playlistFixerForm.BringToFront();
+                }
+            }
+        }
+
+        public void ChildClosed(Form Child)
+        {
+            if (Child is PlaylistFixerForm)
+            {
+                playlistFixerForm = null;
+            }
         }
     }
 }

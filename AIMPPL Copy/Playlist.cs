@@ -13,7 +13,7 @@ namespace AIMPPL_Copy
         public string Name;
         public List<Group> Groups;
 
-        private List<Song> songs;
+        protected List<Song> songs;
         public List<Song> Songs
         {
             get
@@ -56,7 +56,7 @@ namespace AIMPPL_Copy
             }
         }
 
-        private List<Cover> covers;
+        protected List<Cover> covers;
         public List<Cover> Covers
         {
             get
@@ -76,7 +76,7 @@ namespace AIMPPL_Copy
             }
         }
 
-        private List<Scan> scans;
+        protected List<Scan> scans;
         public List<Scan> Scans
         {
             get
@@ -119,73 +119,9 @@ namespace AIMPPL_Copy
             }
         }
 
-        public Playlist(string Path)
+        public virtual void Save()
         {
-            this.Path = Path;
-            Groups = new List<Group>();
-
-            using (var fs = File.Open(Path, FileMode.Open))
-            {
-                using (var r = new StreamReader(fs))
-                {
-                    if (!r.BaseStream.CanSeek)
-                    {
-                        throw new NotSupportedException("Stream doesn't support seeking, cannot load playlist.");
-                    }
-                    while (!r.EndOfStream)
-                    {
-                        var pos = Util.GetActualPosition(r);
-                        var line = r.ReadLine();
-                        if (string.IsNullOrWhiteSpace(line))
-                        {
-                            return;
-                        }
-                        var variable = line.Substring(1, line.IndexOf(':') - 1);
-                        var value = line.Substring(variable.Length + 2);
-
-                        switch (variable)
-                        {
-                            case "ID":
-                                {
-                                    // Don't care.
-                                    break;
-                                }
-                            case "Name":
-                                {
-                                    Name = value;
-                                    break;
-                                }
-                            case "Cursor":
-                                {
-                                    // Don't care.
-                                    break;
-                                }
-                            case "Summary":
-                                {
-                                    // Don't care, we can calculate these.
-                                    break;
-                                }
-                            case "Flags":
-                                {
-                                    // Don't care.
-                                    break;
-                                }
-                            case "Group":
-                                {
-                                    // Rewind stream to allow group to load group info.
-                                    Util.SetActualPosition(r, pos);
-                                    var group = new Group(r);
-                                    Groups.Add(group);
-                                    break;
-                                }
-                            default:
-                                {
-                                    throw new NotSupportedException($"Unknown playlist variable \"{variable}\".");
-                                }
-                        }
-                    }
-                }
-            }
+            throw new NotImplementedException();
         }
 
         public override string ToString()

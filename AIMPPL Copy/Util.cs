@@ -9,6 +9,20 @@ namespace AIMPPL_Copy
 {
     public static class Util
     {
+        private static Dictionary<string, bool> FileExistenceCache;
+        private static HashSet<string> FolderScanCache;
+        private static string[] MusicExtensions = new string[]
+        {
+            "flac",
+            "mp3",
+            "alac",
+            "tak",
+            "ape",
+            "wav",
+            "ogg",
+            "m4a",
+        };
+
         // From https://stackoverflow.com/a/17457085
         public static long GetActualPosition(StreamReader reader)
         {
@@ -174,6 +188,132 @@ namespace AIMPPL_Copy
 
             // Return found scans if any.
             return scans;
+        }
+
+        /// <summary>
+        /// Returns whether a file exists on disk or not, uses a cache and scans the whole folder if
+        /// the file is not in the cache already.
+        /// </summary>
+        /// <param name="Path">Path to check for existance.</param>
+        /// <returns>Whether the file exists.</returns>
+        public static bool FileExists(string Path)
+        {
+            if (FileExistenceCache == null)
+            {
+                FileExistenceCache = new Dictionary<string, bool>();
+                FolderScanCache = new HashSet<string>();
+            }
+
+            if (!FileExistenceCache.ContainsKey(Path))
+            {
+                var dirPath = System.IO.Path.GetDirectoryName(Path);
+
+                // Account for non existant folders.
+                if (!Directory.Exists(dirPath))
+                {
+                    FileExistenceCache.Add(Path, false);
+                    return false;
+                }
+
+                if (FolderScanCache.Contains(dirPath))
+                {
+                    FileExistenceCache.Add(Path, false);
+                }
+                else
+                {
+                    FolderScanCache.Add(dirPath);
+                    var dirFiles = Directory.GetFiles(dirPath);
+                    foreach (var file in dirFiles)
+                    {
+                        FileExistenceCache.Add(file, true);
+                    }
+                    if (!dirFiles.Contains(Path))
+                    {
+                        FileExistenceCache.Add(Path, false);
+                    }
+                }
+            }
+
+            return FileExistenceCache[Path];
+        }
+
+        /// <summary>
+        /// Finds missing songs or songs with changed filetypes in the specified playlist.
+        /// </summary>
+        /// <param name="Playlist">Playlist to search.</param>
+        /// <param name="Missing">List to store the missing songs.</param>
+        /// <param name="FormatChanged">List to store the songs with changed filetypes.</param>
+        /// <returns>True if songs were missing, false if not.</returns>
+        public static bool FindMissing(Playlist Playlist, out List<Song> Missing, out List<FormatChange> FormatChanged)
+        {
+            var found = false;
+            Missing = new List<Song>();
+            FormatChanged = new List<FormatChange>();
+            var songs = Playlist.Songs;
+
+            foreach (var song in songs)
+            {
+                if (!FileExists(song.Path))
+                {
+                    var changed = false;
+                    foreach (var extension in MusicExtensions)
+                    {
+                        var newPath = Path.Combine(Path.GetDirectoryName(song.Path), Path.ChangeExtension(song.Path, extension));
+                        if (FileExists(newPath))
+                        {
+                            FormatChanged.Add(new FormatChange(song, extension));
+                            changed = true;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!changed)
+                    {
+                        Missing.Add(song);
+                        found = true;
+                    }
+                }
+            }
+
+            return found;
+        }
+
+        public static List<Tuple<Song, string>> SearchSongs(List<Song> MissingSongs, string Directory)
+        {
+            var foundSongs = new List<Tuple<Song, string>>();
+            var files = Apex.FileUtil.GetFiles(Directory);
+
+            // Try to find the song in the search directory.
+            foreach (var song in MissingSongs)
+            {
+                var found = false;
+                // In theory, FLAC and MP3 files are much more likely to be found so prioritise searching by
+                // extension rather than trying each extension on each file one after the other.
+                foreach (var extension in MusicExtensions)
+                {
+                    if (found)
+                    {
+                        continue;
+                    }
+
+                    foreach (var file in files)
+                    {
+                        if (found)
+                        {
+                            continue;
+                        }
+
+                        // Update the data grid with the new filename if we found it.
+                        if (Path.GetFileName(Path.ChangeExtension(song.Path, extension)) == Path.GetFileName(file))
+                        {
+                            foundSongs.Add(new Tuple<Song, string>(song, file));
+                            found = true;
+                        }
+                    }
+                }
+            }
+
+            return foundSongs;
         }
     }
 }

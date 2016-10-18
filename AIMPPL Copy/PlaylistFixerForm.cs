@@ -19,20 +19,6 @@ namespace AIMPPL_Copy
         private Playlist playlist;
         new private MainForm Parent;
 
-        private Dictionary<string, bool> FileExistanceCache;
-        private HashSet<string> FolderScanCache;
-        private string[] extensions = new string[]
-        {
-            "flac",
-            "mp3",
-            "alac",
-            "tak",
-            "ape",
-            "wav",
-            "ogg",
-            "m4a",
-        };
-
         public PlaylistFixerForm(LanguageManager LanguageManager, Playlist SelectedPlaylist, MainForm Parent)
         {
             InitializeComponent();
@@ -72,8 +58,6 @@ namespace AIMPPL_Copy
             }
 
             this.Parent = Parent;
-            FileExistanceCache = new Dictionary<string, bool>();
-            FolderScanCache = new HashSet<string>();
 
             LoadPlaylist(SelectedPlaylist);
         }
@@ -81,37 +65,10 @@ namespace AIMPPL_Copy
         public void LoadPlaylist(Playlist SelectedPlaylist)
         {
             playlist = SelectedPlaylist;
-            var songs = playlist.Songs;
             var missing = new List<Song>();
             var formatChanged = new List<FormatChange>();
 
-            foreach (var song in songs)
-            {
-                if (!FileExists(song.Path))
-                {
-                    var changed = false;
-                    foreach (var extension in extensions)
-                    {
-                        var newPath = Path.Combine(Path.GetDirectoryName(song.Path), Path.ChangeExtension(song.Path, extension));
-                        if (FileExists(newPath))
-                        {
-                            formatChanged.Add(new FormatChange(song, extension));
-                            changed = true;
-                            break;
-                        }
-                    }
-                    if (!changed)
-                    {
-                        missing.Add(song);
-                    }
-                }
-            }
-
-            //lstMissing.Items.Clear();
-            //lstMissing.Items.AddRange(missing.ToArray());
-
-            //lstChangedFiletype.Items.Clear();
-            //lstChangedFiletype.Items.AddRange(formatChanged.ToArray());
+            Util.FindMissing(SelectedPlaylist, out missing, out formatChanged);
 
             dgvMissing.Rows.Clear();
             foreach (var song in missing)
@@ -124,47 +81,6 @@ namespace AIMPPL_Copy
             }
 
             ResizeColumns();
-        }
-
-        /// <summary>
-        /// Returns whether a file exists on disk or not, uses a cache and scans the whole folder if
-        /// the file is not in the cache already.
-        /// </summary>
-        /// <param name="Path">Path to check for existance.</param>
-        /// <returns>Whether the file exists.</returns>
-        private bool FileExists(string Path)
-        {
-            if (!FileExistanceCache.ContainsKey(Path))
-            {
-                var dirPath = System.IO.Path.GetDirectoryName(Path);
-
-                // Account for non existant folders.
-                if (!Directory.Exists(dirPath))
-                {
-                    FileExistanceCache.Add(Path, false);
-                    return false;
-                }
-
-                if (FolderScanCache.Contains(dirPath))
-                {
-                    FileExistanceCache.Add(Path, false);
-                }
-                else
-                {
-                    FolderScanCache.Add(dirPath);
-                    var dirFiles = Directory.GetFiles(dirPath);
-                    foreach (var file in dirFiles)
-                    {
-                        FileExistanceCache.Add(file, true);
-                    }
-                    if (!dirFiles.Contains(Path))
-                    {
-                        FileExistanceCache.Add(Path, false);
-                    }
-                }
-            }
-
-            return FileExistanceCache[Path];
         }
 
         private void PlaylistFixerForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -263,38 +179,15 @@ namespace AIMPPL_Copy
         {
             if (DirectoryDialogue.ShowDialog() == DialogResult.OK)
             {
-                var files = Apex.FileUtil.GetFiles(DirectoryDialogue.SelectedPath);
-                var songs = dgvMissing.Rows.Cast<DataGridViewRow>().Where((x) => !(bool)(x.Cells[clmChange.Index].Value)).Select((x) => new Tuple<Song, int>(x.Cells[clmSongBind.Index].Value as Song, x.Index)).ToList();
+                var songs = dgvMissing.Rows.Cast<DataGridViewRow>().Where((x) => !(bool)(x.Cells[clmChange.Index].Value)).Select((x) => x.Cells[clmSongBind.Index].Value as Song).ToList();
+                var foundSongs = Util.SearchSongs(songs, DirectoryDialogue.SelectedPath);
 
-                // Try to find the song in the search directory.
-                foreach (var song in songs)
+                var rows = dgvMissing.Rows.Cast<DataGridViewRow>();
+                foreach (var song in foundSongs)
                 {
-                    var found = false;
-                    // In theory, FLAC and MP3 files are much more likely to be found so prioritise searching by
-                    // extension rather than trying each extension on each file one after the other.
-                    foreach (var extension in extensions)
-                    {
-                        if (found)
-                        {
-                            continue;
-                        }
-
-                        foreach (var file in files)
-                        {
-                            if (found)
-                            {
-                                continue;
-                            }
-
-                            // Update the data grid with the new filename if we found it.
-                            if (Path.GetFileName(Path.ChangeExtension(song.Item1.Path, extension)) == Path.GetFileName(file))
-                            {
-                                dgvMissing.Rows[song.Item2].Cells[clmDestination.Index].Value = file;
-                                dgvMissing.Rows[song.Item2].Cells[clmChange.Index].Value = true;
-                                found = true;
-                            }
-                        }
-                    }
+                    var row = rows.First((x) => x.Cells[clmSongBind.Index].Value == song.Item1);
+                    row.Cells[clmDestination.Index].Value = song.Item2;
+                    row.Cells[clmChange.Index].Value = true;
                 }
             }
         }

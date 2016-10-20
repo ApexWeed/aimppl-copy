@@ -64,6 +64,7 @@
             this.btnFixPlaylist = new Apex.Translation.Controls.TranslatableButton();
             this.TooltipTranslator = new Apex.Translation.Controls.TranslatableTooltips();
             this.Tooltips = new System.Windows.Forms.ToolTip(this.components);
+            this.chkBulkMode = new Apex.Translation.Controls.TranslatableCheckBox();
             this.grpGroup.SuspendLayout();
             this.grpSong.SuspendLayout();
             this.grpPlaylist.SuspendLayout();
@@ -75,7 +76,7 @@
             this.lstPlaylists.ItemHeight = 12;
             this.lstPlaylists.Location = new System.Drawing.Point(14, 24);
             this.lstPlaylists.Name = "lstPlaylists";
-            this.lstPlaylists.Size = new System.Drawing.Size(193, 436);
+            this.lstPlaylists.Size = new System.Drawing.Size(193, 460);
             this.lstPlaylists.TabIndex = 0;
             this.lstPlaylists.SelectedIndexChanged += new System.EventHandler(this.lstPlaylists_SelectedIndexChanged);
             // 
@@ -86,7 +87,7 @@
             this.treSongs.Location = new System.Drawing.Point(213, 24);
             this.treSongs.Name = "treSongs";
             this.treSongs.SelectedImageIndex = 0;
-            this.treSongs.Size = new System.Drawing.Size(316, 436);
+            this.treSongs.Size = new System.Drawing.Size(316, 460);
             this.treSongs.TabIndex = 7;
             this.treSongs.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treSongs_AfterSelect);
             // 
@@ -101,7 +102,7 @@
             // 
             this.pgbProgress.CustomText = null;
             this.pgbProgress.DisplayStyle = Apex.Controls.ProgressBarDisplayText.CustomText;
-            this.pgbProgress.Location = new System.Drawing.Point(616, 437);
+            this.pgbProgress.Location = new System.Drawing.Point(616, 461);
             this.pgbProgress.Name = "pgbProgress";
             this.pgbProgress.Size = new System.Drawing.Size(156, 23);
             this.pgbProgress.TabIndex = 17;
@@ -109,7 +110,7 @@
             // btnCopy
             // 
             this.btnCopy.DefaultString = null;
-            this.btnCopy.Location = new System.Drawing.Point(535, 437);
+            this.btnCopy.Location = new System.Drawing.Point(535, 461);
             this.btnCopy.Name = "btnCopy";
             this.btnCopy.Size = new System.Drawing.Size(75, 23);
             this.btnCopy.TabIndex = 16;
@@ -441,9 +442,9 @@
             // btnFixPlaylist
             // 
             this.btnFixPlaylist.DefaultString = null;
-            this.btnFixPlaylist.Location = new System.Drawing.Point(616, 408);
+            this.btnFixPlaylist.Location = new System.Drawing.Point(535, 432);
             this.btnFixPlaylist.Name = "btnFixPlaylist";
-            this.btnFixPlaylist.Size = new System.Drawing.Size(156, 23);
+            this.btnFixPlaylist.Size = new System.Drawing.Size(237, 23);
             this.btnFixPlaylist.TabIndex = 18;
             this.btnFixPlaylist.Text = "MAIN.BUTTON.FIX_PLAYLIST";
             this.btnFixPlaylist.TranslationString = "MAIN.BUTTON.FIX_PLAYLIST";
@@ -456,11 +457,24 @@
             this.TooltipTranslator.ToolTips = this.Tooltips;
             this.TooltipTranslator.TranslationStrings = ((System.Collections.Generic.Dictionary<System.Windows.Forms.Control, string>)(resources.GetObject("TooltipTranslator.TranslationStrings")));
             // 
+            // chkBulkMode
+            // 
+            this.chkBulkMode.AutoSize = true;
+            this.chkBulkMode.DefaultString = null;
+            this.chkBulkMode.Location = new System.Drawing.Point(535, 408);
+            this.chkBulkMode.Name = "chkBulkMode";
+            this.chkBulkMode.Size = new System.Drawing.Size(175, 16);
+            this.chkBulkMode.TabIndex = 19;
+            this.chkBulkMode.Text = "MAIN.LABEL.BULK_PLAYLIST";
+            this.chkBulkMode.TranslationString = "MAIN.LABEL.BULK_PLAYLIST";
+            this.chkBulkMode.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 477);
+            this.ClientSize = new System.Drawing.Size(784, 498);
+            this.Controls.Add(this.chkBulkMode);
             this.Controls.Add(this.btnFixPlaylist);
             this.Controls.Add(this.pgbProgress);
             this.Controls.Add(this.btnCopy);
@@ -525,6 +539,7 @@
         private Apex.Translation.Controls.TranslatableButton btnFixPlaylist;
         private Apex.Translation.Controls.TranslatableTooltips TooltipTranslator;
         private System.Windows.Forms.ToolTip Tooltips;
+        private Apex.Translation.Controls.TranslatableCheckBox chkBulkMode;
     }
 }
 

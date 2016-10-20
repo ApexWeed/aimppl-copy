@@ -21,6 +21,7 @@ namespace AIMPPL_Copy
         private Dictionary<string, int> CoverMap;
         private LanguageManager LM;
         private PlaylistFixerForm playlistFixerForm;
+        private BulkPlaylistFixerForm bulkPlaylistFixerForm;
 
         public MainForm()
         {
@@ -435,17 +436,33 @@ namespace AIMPPL_Copy
 
         private void btnFixPlaylist_Click(object sender, EventArgs e)
         {
-            if (lstPlaylists.SelectedItem != null && lstPlaylists.SelectedItem is Playlist)
+            if (chkBulkMode.Checked)
             {
-                if (playlistFixerForm == null)
+                if (bulkPlaylistFixerForm == null)
                 {
-                    playlistFixerForm = new PlaylistFixerForm(LM, lstPlaylists.SelectedItem as Playlist, this);
-                    playlistFixerForm.Show();
+                    var playlists = lstPlaylists.Items.Cast<Playlist>().ToList();
+                    bulkPlaylistFixerForm = new BulkPlaylistFixerForm(LM, playlists, this);
+                    bulkPlaylistFixerForm.Show();
                 }
                 else
                 {
-                    playlistFixerForm.LoadPlaylist(lstPlaylists.SelectedItem as Playlist);
-                    playlistFixerForm.BringToFront();
+                    bulkPlaylistFixerForm.BringToFront();
+                }
+            }
+            else
+            {
+                if (lstPlaylists.SelectedItem != null && lstPlaylists.SelectedItem is Playlist)
+                {
+                    if (playlistFixerForm == null)
+                    {
+                        playlistFixerForm = new PlaylistFixerForm(LM, lstPlaylists.SelectedItem as Playlist, this);
+                        playlistFixerForm.Show();
+                    }
+                    else
+                    {
+                        playlistFixerForm.LoadPlaylist(lstPlaylists.SelectedItem as Playlist);
+                        playlistFixerForm.BringToFront();
+                    }
                 }
             }
         }
@@ -455,6 +472,10 @@ namespace AIMPPL_Copy
             if (Child is PlaylistFixerForm)
             {
                 playlistFixerForm = null;
+            }
+            else if (Child is BulkPlaylistFixerForm)
+            {
+                bulkPlaylistFixerForm = null;
             }
         }
     }

@@ -26,10 +26,10 @@ namespace AIMPPL_Copy
         // From https://stackoverflow.com/a/17457085
         public static long GetActualPosition(StreamReader reader)
         {
-            System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.DeclaredOnly | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.GetField;
+            var flags = System.Reflection.BindingFlags.DeclaredOnly | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.GetField;
 
             // The current buffer of decoded characters
-            char[] charBuffer = (char[])reader.GetType().InvokeMember("charBuffer", flags, null, reader, null);
+            var charBuffer = (char[])reader.GetType().InvokeMember("charBuffer", flags, null, reader, null);
 
             // The index of the next char to be read from charBuffer
             var charPos = (int)reader.GetType().InvokeMember("charPos", flags, null, reader, null);
@@ -38,7 +38,7 @@ namespace AIMPPL_Copy
             var charLen = (int)reader.GetType().InvokeMember("charLen", flags, null, reader, null);
 
             // The current buffer of read bytes (byteBuffer.Length = 1024; this is critical).
-            byte[] byteBuffer = (byte[])reader.GetType().InvokeMember("byteBuffer", flags, null, reader, null);
+            var byteBuffer = (byte[])reader.GetType().InvokeMember("byteBuffer", flags, null, reader, null);
 
             // The number of bytes read while advancing reader.BaseStream.Position to (re)fill charBuffer
             var byteLen = (int)reader.GetType().InvokeMember("byteLen", flags, null, reader, null);

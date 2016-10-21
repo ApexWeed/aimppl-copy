@@ -97,6 +97,8 @@ namespace AIMPPL_Copy.AIMP4
 
         public override void Save()
         {
+            CorrectGroups();
+
             using (var fs = File.Create(Path))
             {
                 using (var w = new StreamWriter(fs, Encoding.Unicode))
@@ -120,6 +122,50 @@ namespace AIMPPL_Copy.AIMP4
                             w.WriteLine(song.PlaylistFormat);
                         }
                     }
+                }
+            }
+        }
+
+        public void CorrectGroups()
+        {
+            for (int i = 0; i < Groups.Count; i++)
+            {
+                var group = Groups[i];
+                var correct = true;
+                var directories = new HashSet<string>();
+
+                foreach (var song in group.Songs)
+                {
+                    if (!directories.Contains(song.Directory))
+                    {
+                        directories.Add(song.Directory);
+                    }
+
+                    if (song.Directory != group.Path)
+                    {
+                        correct = false;
+                    }
+                }
+
+                // The group contains files in multiple directories, they need to be split into seperate groups.
+                if (directories.Count > 1)
+                {
+                    var newGroups = new List<Group>();
+                    foreach (var directory in directories)
+                    {
+                        var songs = group.Songs.Where((x) => x.Directory == directory).ToList();
+                        var newGroup = new AIMP4Group(directory, songs);
+                        newGroups.Add(newGroup);
+                    }
+
+                    Groups.RemoveAt(i);
+                    Groups.InsertRange(i, newGroups);
+                    i += directories.Count - 1;
+                }
+                // The group has the wrong path.
+                else if (!correct)
+                {
+                    group.Path = directories.First();
                 }
             }
         }

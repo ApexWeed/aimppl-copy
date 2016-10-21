@@ -87,6 +87,28 @@ namespace AIMPPL_Copy
             }
         }
 
+        public virtual string Directory
+        {
+            get
+            {
+                return System.IO.Path.GetDirectoryName(Path);
+            }
+        }
+
+        public virtual string Group
+        {
+            get
+            {
+                var directory = Directory;
+                var lastIndex = directory.LastIndexOf('\\');
+                if (lastIndex == -1)
+                {
+                    lastIndex = directory.LastIndexOf('/');
+                }
+                return directory.Substring(lastIndex + 1);
+            }
+        }
+
         public override string ToString()
         {
             if (string.IsNullOrWhiteSpace(Title))

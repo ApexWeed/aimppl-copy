@@ -53,5 +53,11 @@ namespace AIMPPL_Copy.AIMP4
                 }
             } while (!Reader.EndOfStream);
         }
+
+        public AIMP4Group(string Path, List<Song> Songs)
+        {
+            this.Path = Path;
+            this.Songs = Songs;
+        }
     }
 }

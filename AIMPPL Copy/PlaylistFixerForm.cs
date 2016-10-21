@@ -172,7 +172,8 @@ namespace AIMPPL_Copy
 
         private void PlaylistFixerForm_Resize(object sender, EventArgs e)
         {
-            pnlBottomLeft.Width = pnlBottom.Width / 2;
+            pnlBottomLeft.Width = pnlBottom.Width / 3;
+            pnlBottomRightLeft.Width = pnlBottomRight.Width / 2;
         }
 
         private void btnSearch_Click(object sender, EventArgs e)
@@ -180,7 +181,7 @@ namespace AIMPPL_Copy
             if (DirectoryDialogue.ShowDialog() == DialogResult.OK)
             {
                 var songs = dgvMissing.Rows.Cast<DataGridViewRow>().Where((x) => !(bool)(x.Cells[clmChange.Index].Value)).Select((x) => x.Cells[clmSongBind.Index].Value as Song).ToList();
-                var foundSongs = Util.SearchSongs(songs, DirectoryDialogue.SelectedPath);
+                var foundSongs = Util.SearchSongs(songs, DirectoryDialogue.SelectedPath, chkScanTags.Checked);
 
                 var rows = dgvMissing.Rows.Cast<DataGridViewRow>();
                 foreach (var song in foundSongs)
@@ -189,6 +190,18 @@ namespace AIMPPL_Copy
                     row.Cells[clmDestination.Index].Value = song.Item2;
                     row.Cells[clmChange.Index].Value = true;
                 }
+            }
+        }
+
+        private void chkScanTags_CheckedChanged(object sender, EventArgs e)
+        {
+            if (MessageBox.Show(LM.GetString("FIX_PLAYLIST.MESSAGE.SCAN_TAGS"), LM.GetString("FIX_PLAYLIST.LABEL.SCAN_TAGS"), MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                (sender as CheckBox).Checked = true;
+            }
+            else
+            {
+                (sender as CheckBox).Checked = false;
             }
         }
     }

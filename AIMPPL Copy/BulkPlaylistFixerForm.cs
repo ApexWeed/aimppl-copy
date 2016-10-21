@@ -63,7 +63,8 @@ namespace AIMPPL_Copy
 
         private void BulkPlaylistFixerForm_SizeChanged(object sender, EventArgs e)
         {
-            pnlBottomLeft.Width = pnlBottom.Width / 2;
+            pnlBottomLeft.Width = pnlBottom.Width / 3;
+            pnlBottomRightLeft.Width = pnlBottomRight.Width / 2;
         }
 
         private void ptcTree_DestinationClicked(object sender, PlaylistTree.PlaylistTreeControl.DestinationClickedEventArgs e)
@@ -128,7 +129,7 @@ namespace AIMPPL_Copy
                     {
                         continue;
                     }
-                    var foundSongs = Util.SearchSongs(songs, DirectoryDialogue.SelectedPath);
+                    var foundSongs = Util.SearchSongs(songs, DirectoryDialogue.SelectedPath, chkScanTags.Checked);
 
                     foreach(var song in foundSongs)
                     {
@@ -137,6 +138,18 @@ namespace AIMPPL_Copy
                         node.IsChecked = true;
                     }
                 }
+            }
+        }
+
+        private void chkScanTags_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show(LM.GetString("FIX_PLAYLIST.MESSAGE.SCAN_TAGS"), LM.GetString("FIX_PLAYLIST.LABEL.SCAN_TAGS"), MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                (sender as CheckBox).Checked = true;
+            }
+            else
+            {
+                (sender as CheckBox).Checked = false;
             }
         }
     }

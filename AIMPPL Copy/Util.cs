@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AIMPPL_Copy
 {
@@ -22,6 +20,7 @@ namespace AIMPPL_Copy
             "ogg",
             "m4a",
         };
+        private static Dictionary<string, TagLib.Tag> TagCache;
 
         // From https://stackoverflow.com/a/17457085
         public static long GetActualPosition(StreamReader reader)
@@ -237,6 +236,28 @@ namespace AIMPPL_Copy
             return FileExistenceCache[Path];
         }
 
+        public static TagLib.Tag GetTags(string Filename)
+        {
+            if (TagCache == null)
+            {
+                TagCache = new Dictionary<string, TagLib.Tag>();
+            }
+
+            if (!TagCache.ContainsKey(Filename))
+            {
+                if (File.Exists(Filename))
+                {
+                    TagCache.Add(Filename, TagLib.File.Create(Filename).Tag);
+                }
+                else
+                {
+                    TagCache.Add(Filename, null);
+                }
+            }
+
+            return TagCache[Filename];
+        }
+
         /// <summary>
         /// Finds missing songs or songs with changed filetypes in the specified playlist.
         /// </summary>
@@ -278,7 +299,14 @@ namespace AIMPPL_Copy
             return found;
         }
 
-        public static List<Tuple<Song, string>> SearchSongs(List<Song> MissingSongs, string Directory)
+        /// <summary>
+        /// Searches for missing songs.
+        /// </summary>
+        /// <param name="MissingSongs">List of songs to search for.</param>
+        /// <param name="Directory">Directory to search in.</param>
+        /// <param name="SearchTags">Whether to scan tags if filename search fails.</param>
+        /// <returns>Tuple of songs and found filepaths.</returns>
+        public static List<Tuple<Song, string>> SearchSongs(List<Song> MissingSongs, string Directory, bool SearchTags)
         {
             var foundSongs = new List<Tuple<Song, string>>();
             var files = Apex.FileUtil.GetFiles(Directory);
@@ -308,6 +336,55 @@ namespace AIMPPL_Copy
                         {
                             foundSongs.Add(new Tuple<Song, string>(song, file));
                             found = true;
+                        }
+                    }
+                }
+            }
+
+            if (SearchTags)
+            {
+                foreach (var song in foundSongs.Select((x) => x.Item1))
+                {
+                    MissingSongs.Remove(song);
+                }
+
+                // Songs that couldn't be found from path alone.
+                if (MissingSongs.Count > 0)
+                {
+                    var filteredFiles = new List<string>();
+                    foreach (var file in files)
+                    {
+                        var extension = Path.GetExtension(file);
+                        if (extension.Length > 1)
+                        {
+                            if (MusicExtensions.Contains(extension.Substring(1)))
+                            {
+                                filteredFiles.Add(file);
+                            }
+                        }
+                    }
+
+                    // Search through every music file found.
+                    foreach (var file in filteredFiles)
+                    {
+                        // No point loading tags if all songs have been found already.
+                        if (MissingSongs.Count == 0)
+                        {
+                            break;
+                        }
+
+                        var tag = GetTags(file);
+
+                        for (int i = 0; i < MissingSongs.Count; i++)
+                        {
+                            var song = MissingSongs[i];
+                            if (song.Title == tag.Title && song.Album == tag.Album)
+                            {
+                                // That's probably the right song.
+                                foundSongs.Add(new Tuple<Song, string>(song, file));
+                                MissingSongs.RemoveAt(i);
+                                break;
+                            }
                         }
                     }
                 }

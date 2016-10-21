@@ -30,5 +30,20 @@ namespace AIMPPL_Copy.PlaylistTree
         {
             playlist = Playlist;
         }
+
+        public void CheckChildCheckState()
+        {
+            var allChecked = true;
+            foreach (var song in Nodes)
+            {
+                if (!song.IsChecked)
+                {
+                    allChecked = false;
+                    break;
+                }
+            }
+
+            IsChecked = allChecked;
+        }
     }
 }

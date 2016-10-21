@@ -32,10 +32,10 @@
             this.colName = new Aga.Controls.Tree.TreeColumn();
             this.colSource = new Aga.Controls.Tree.TreeColumn();
             this.colDestination = new Aga.Controls.Tree.TreeColumn();
-            this.ntbName = new Aga.Controls.Tree.NodeControls.NodeTextBox();
             this.ncbCheck = new Aga.Controls.Tree.NodeControls.NodeCheckBox();
-            this.nbtSource = new Aga.Controls.Tree.NodeControls.NodeTextBox();
-            this.nbtDestination = new Aga.Controls.Tree.NodeControls.NodeTextBox();
+            this.ntbName = new Aga.Controls.Tree.NodeControls.NodeTextBox();
+            this.ntbSource = new Aga.Controls.Tree.NodeControls.NodeTextBox();
+            this.ntbDestination = new Aga.Controls.Tree.NodeControls.NodeTextBox();
             this.SuspendLayout();
             // 
             // treeView
@@ -53,13 +53,15 @@
             this.treeView.Name = "treeView";
             this.treeView.NodeControls.Add(this.ncbCheck);
             this.treeView.NodeControls.Add(this.ntbName);
-            this.treeView.NodeControls.Add(this.nbtSource);
-            this.treeView.NodeControls.Add(this.nbtDestination);
+            this.treeView.NodeControls.Add(this.ntbSource);
+            this.treeView.NodeControls.Add(this.ntbDestination);
             this.treeView.SelectedNode = null;
             this.treeView.Size = new System.Drawing.Size(274, 186);
             this.treeView.TabIndex = 0;
             this.treeView.Text = "treeViewAdv1";
             this.treeView.UseColumns = true;
+            this.treeView.NodeMouseClick += new System.EventHandler<Aga.Controls.Tree.TreeNodeAdvMouseEventArgs>(this.treeView_NodeMouseClick);
+            this.treeView.NodeMouseDoubleClick += new System.EventHandler<Aga.Controls.Tree.TreeNodeAdvMouseEventArgs>(this.treeView_NodeMouseDoubleClick);
             // 
             // colName
             // 
@@ -79,6 +81,12 @@
             this.colDestination.SortOrder = System.Windows.Forms.SortOrder.None;
             this.colDestination.TooltipText = null;
             // 
+            // ncbCheck
+            // 
+            this.ncbCheck.DataPropertyName = "IsChecked";
+            this.ncbCheck.LeftMargin = 0;
+            this.ncbCheck.ParentColumn = this.colName;
+            // 
             // ntbName
             // 
             this.ntbName.DataPropertyName = "Text";
@@ -86,25 +94,19 @@
             this.ntbName.LeftMargin = 3;
             this.ntbName.ParentColumn = this.colName;
             // 
-            // ncbCheck
+            // ntbSource
             // 
-            this.ncbCheck.DataPropertyName = "IsChecked";
-            this.ncbCheck.LeftMargin = 0;
-            this.ncbCheck.ParentColumn = this.colName;
+            this.ntbSource.DataPropertyName = "SourceFilename";
+            this.ntbSource.IncrementalSearchEnabled = true;
+            this.ntbSource.LeftMargin = 3;
+            this.ntbSource.ParentColumn = this.colSource;
             // 
-            // nbtSource
+            // ntbDestination
             // 
-            this.nbtSource.DataPropertyName = "SourceFilename";
-            this.nbtSource.IncrementalSearchEnabled = true;
-            this.nbtSource.LeftMargin = 3;
-            this.nbtSource.ParentColumn = this.colSource;
-            // 
-            // nbtDestination
-            // 
-            this.nbtDestination.DataPropertyName = "DestinationFilename";
-            this.nbtDestination.IncrementalSearchEnabled = true;
-            this.nbtDestination.LeftMargin = 3;
-            this.nbtDestination.ParentColumn = this.colDestination;
+            this.ntbDestination.DataPropertyName = "DestinationFilename";
+            this.ntbDestination.IncrementalSearchEnabled = true;
+            this.ntbDestination.LeftMargin = 3;
+            this.ntbDestination.ParentColumn = this.colDestination;
             // 
             // PlaylistTreeControl
             // 
@@ -113,6 +115,7 @@
             this.Controls.Add(this.treeView);
             this.Name = "PlaylistTreeControl";
             this.Size = new System.Drawing.Size(274, 186);
+            this.SizeChanged += new System.EventHandler(this.PlaylistTreeControl_SizeChanged);
             this.ResumeLayout(false);
 
         }
@@ -125,7 +128,7 @@
         private Aga.Controls.Tree.TreeColumn colDestination;
         private Aga.Controls.Tree.NodeControls.NodeTextBox ntbName;
         private Aga.Controls.Tree.NodeControls.NodeCheckBox ncbCheck;
-        private Aga.Controls.Tree.NodeControls.NodeTextBox nbtSource;
-        private Aga.Controls.Tree.NodeControls.NodeTextBox nbtDestination;
+        private Aga.Controls.Tree.NodeControls.NodeTextBox ntbSource;
+        private Aga.Controls.Tree.NodeControls.NodeTextBox ntbDestination;
     }
 }

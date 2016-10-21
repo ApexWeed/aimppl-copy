@@ -11,14 +11,36 @@ namespace AIMPPL_Copy.PlaylistTree
         public string SourceFilename
         {
             get { return sourceFilename; }
-            set { sourceFilename = value; }
+            set
+            {
+                sourceFilename = value;
+                NotifyModel();
+            }
         }
 
         private string destinationFilename = "";
         public string DestinationFilename
         {
             get { return destinationFilename; }
-            set { destinationFilename = value; }
+            set
+            {
+                destinationFilename = value;
+                NotifyModel();
+            }
+        }
+
+        public override CheckState CheckState
+        {
+            get { return checkState; }
+            set
+            {
+                if (checkState != value)
+                {
+                    checkState = value;
+                    NotifyModel();
+                    (Parent as PlaylistNode).CheckChildCheckState();
+                }
+            }
         }
 
         private Song song;

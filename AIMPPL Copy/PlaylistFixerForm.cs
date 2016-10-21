@@ -135,7 +135,7 @@ namespace AIMPPL_Copy
         private void ResizeColumns()
         {
             // Final usable size for source / destination is width of the data grid view - 165 pixels to account for 
-            // the checkbox, button, and row selector. If there is a scrollbar, it uses a further 16.
+            // the checkbox, button, and row selector. If there is a scrollbar, it uses a further 18.
             var availableWidth = dgvMissing.Width - 169;
             var vScrollbar = dgvMissing.Controls.OfType<VScrollBar>().First();
             if (vScrollbar.Visible)

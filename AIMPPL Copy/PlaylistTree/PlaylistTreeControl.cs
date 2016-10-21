@@ -101,6 +101,16 @@ namespace AIMPPL_Copy.PlaylistTree
         }
         protected string defaultDestination;
 
+        public class DestinationClickedEventArgs : EventArgs
+        {
+            public SongNode Node;
+
+            public DestinationClickedEventArgs(SongNode Node)
+            {
+                this.Node = Node;
+            }
+        }
+
         public PlaylistTreeControl()
         {
             InitializeComponent();
@@ -179,7 +189,7 @@ namespace AIMPPL_Copy.PlaylistTree
             model.Nodes.Add(playlistNode);
         }
 
-        public System.Collections.ObjectModel.ReadOnlyCollection<Aga.Controls.Tree.TreeNodeAdv> GetSelection()
+        public System.Collections.ObjectModel.ReadOnlyCollection<TreeNodeAdv> GetSelection()
         {
             return treeView.SelectedNodes;
         }
@@ -194,9 +204,100 @@ namespace AIMPPL_Copy.PlaylistTree
             node.RemoveItem(index);
         }
 
+        public void RemovePlaylist(PlaylistNode Node)
+        {
+            model.Nodes.RemoveAt(Node.Index);
+        }
+
+        /*
         public void RemoveItem(int index)
         {
             RemoveItem((treeView.Root.Tag as PlaylistTreeNodeBase), index);
+        }
+        */
+
+        public List<PlaylistNode> GetPlaylistNodes()
+        {
+            return model.Nodes.Cast<PlaylistNode>().ToList();
+        }
+
+        private void PlaylistTreeControl_SizeChanged(object sender, EventArgs e)
+        {
+            colName.Width = (int)(Width * 0.3f);
+            colSource.Width = (int)(Width * 0.35f);
+            colDestination.Width = (int)(Width * 0.35f);
+        }
+
+        /// <summary>
+        /// Event fired when the user double clicks on the destination column.
+        /// </summary>
+        public event EventHandler<DestinationClickedEventArgs> DestinationClicked;
+        protected void FireDestinationClicked(object sender, DestinationClickedEventArgs e)
+        {
+            DestinationClicked?.Invoke(sender, e);
+        }
+
+        private void treeView_NodeMouseClick(object sender, TreeNodeAdvMouseEventArgs e)
+        {
+            if (e.Control == ncbCheck)
+            {
+                if (e.Node.Tag.GetType() == typeof(SongNode))
+                {
+                    var node = e.Node.Tag as SongNode;
+                    if (node.IsChecked)
+                    {
+                        node.IsChecked = false;
+                    }
+                    else
+                    {
+                        if (File.Exists(node.DestinationFilename))
+                        {
+                            node.IsChecked = true;
+                        }
+                    }
+                }
+                else if (e.Node.Tag.GetType() == typeof(PlaylistNode))
+                {
+                    var node = e.Node.Tag as PlaylistNode;
+                    if (node.IsChecked)
+                    {
+                        node.IsChecked = false;
+                        foreach (var child in node.Nodes)
+                        {
+                            child.IsChecked = false;
+                        }
+                    }
+                    else
+                    {
+                        var allExist = true;
+                        foreach (var child in node.Nodes)
+                        {
+                            if (!File.Exists((child as SongNode).DestinationFilename))
+                            {
+                                allExist = false;
+                                break;
+                            }
+                        }
+
+                        if (allExist)
+                        {
+                            node.IsChecked = true;
+                            foreach (var child in node.Nodes)
+                            {
+                                child.IsChecked = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void treeView_NodeMouseDoubleClick(object sender, TreeNodeAdvMouseEventArgs e)
+        {
+            if (e.Control == ntbDestination)
+            {
+                FireDestinationClicked(this, new DestinationClickedEventArgs(e.Node.Tag as SongNode));
+            }
         }
     }
 }

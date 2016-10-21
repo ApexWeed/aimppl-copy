@@ -177,7 +177,7 @@ namespace AIMPPL_Copy.PlaylistTree
             }
         }
 
-        private CheckState checkState;
+        protected CheckState checkState;
         public virtual CheckState CheckState
         {
             get { return checkState; }

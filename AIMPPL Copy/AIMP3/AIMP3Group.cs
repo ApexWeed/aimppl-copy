@@ -55,5 +55,11 @@ namespace AIMPPL_Copy.AIMP3
                 }
             } while (!Reader.EndOfStream);
         }
+
+        public AIMP3Group(string Path, List<Song> Songs)
+        {
+            this.Path = Path;
+            this.Songs = Songs;
+        }
     }
 }

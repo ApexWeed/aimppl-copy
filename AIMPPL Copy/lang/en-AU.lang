@@ -48,3 +48,7 @@ FIX_BATCH_PLAYLIST.LABEL.COLUMN.DESTINATION = Replace with file
 MAIN.LABEL.BULK_PLAYLIST = Bulk playlist mode
 FIX_PLAYLIST.LABEL.SCAN_TAGS = Scan tags
 FIX_PLAYLIST.MESSAGE.SCAN_TAGS = Enabling this cause scans to take a very long time.
+MAIN.LABEL.FILE = &File
+MAIN.LABEL.TOOLS = &Tools
+MAIN.LABEL.UPGRADE_PLAYLISTS = &Upgrade Playlists
+MAIN.LABEL.UPGRADE_ALL_PLAYLISTS = Upgrade &All playlists

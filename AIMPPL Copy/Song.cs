@@ -13,6 +13,11 @@ namespace AIMPPL_Copy
             get { return ""; }
             set { }
         }
+        public virtual string IsActive
+        {
+            get { return "1"; }
+            set { }
+        }
         public virtual string Artist
         {
             get { return ""; }
@@ -53,19 +58,34 @@ namespace AIMPPL_Copy
             get { return 0; }
             set { }
         }
-        public virtual int TrackNo
+        public virtual int BPM
         {
             get { return 0; }
+            set { }
+        }
+        public virtual int TrackNo
+        {
+            get { return 1; }
             set { }
         }
         public virtual int DiskNo
         {
-            get { return 0; }
+            get { return 1; }
+            set { }
+        }
+        public virtual string Composer
+        {
+            get { return ""; }
+            set { }
+        }
+        public virtual string Publisher
+        {
+            get { return ""; }
             set { }
         }
         public virtual int SampleRate
         {
-            get { return 0; }
+            get { return 44100; }
             set { }
         }
         public virtual int Bitrate
@@ -75,7 +95,22 @@ namespace AIMPPL_Copy
         }
         public virtual int Channels
         {
+            get { return 2; }
+            set { }
+        }
+        public virtual int Index
+        {
             get { return 0; }
+            set { }
+        }
+        public virtual int StreamSize
+        {
+            get { return 0; }
+            set { }
+        }
+        public virtual string PluginReserved
+        {
+            get { return ""; }
             set { }
         }
 

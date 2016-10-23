@@ -19,6 +19,13 @@ namespace AIMPPL_Copy.AIMP4
         public Dictionary<string, string> Summary;
         public Dictionary<string, string> Settings;
 
+        private AIMP4Playlist()
+        {
+            Groups = new List<Group>();
+            Summary = new Dictionary<string, string>();
+            Settings = new Dictionary<string, string>();
+        }
+
         public AIMP4Playlist(string Path)
         {
             this.Path = Path;
@@ -64,18 +71,22 @@ namespace AIMPPL_Copy.AIMP4
                         {
                             case PlaylistMode.Summary:
                                 {
-                                    var parts = line.Split('=');
-                                    Summary.Add(parts[0], parts[1]);
-                                    if (parts[0] == "Name")
+                                    var split = line.IndexOf('=');
+                                    var variable = line.Substring(0, split);
+                                    var value = line.Substring(split + 1);
+                                    Summary.Add(variable, value);
+                                    if (variable == "Name")
                                     {
-                                        Name = parts[1];
+                                        Name = value;
                                     }
                                     break;
                                 }
                             case PlaylistMode.Settings:
                                 {
-                                    var parts = line.Split('=');
-                                    Settings.Add(parts[0], parts[1]);
+                                    var split = line.IndexOf('=');
+                                    var variable = line.Substring(0, split);
+                                    var value = line.Substring(split + 1);
+                                    Settings.Add(variable, value);
                                     break;
                                 }
                             case PlaylistMode.Content:
@@ -173,6 +184,47 @@ namespace AIMPPL_Copy.AIMP4
         public override string ToString()
         {
             return Name;
+        }
+
+        public static AIMP4Playlist UpgradePlaylist(AIMP3.AIMP3Playlist OldPlaylist)
+        {
+            var newPlaylist = new AIMP4Playlist()
+            {
+                Name = OldPlaylist.Name,
+                Path = System.IO.Path.ChangeExtension(OldPlaylist.Path, "aimppl4")
+            };
+
+            var contentDuration = 0;
+            var contentFiles = 0;
+            var contentSize = 0;
+            foreach (var oldGroup in OldPlaylist.Groups)
+            {
+                var newSongs = new List<Song>();
+                foreach (var oldSong in oldGroup.Songs)
+                {
+                    var newSong = new AIMP4Song(oldSong);
+                    newSongs.Add(newSong);
+                    contentDuration += newSong.Duration;
+                    contentFiles++;
+                    contentSize += newSong.Size;
+                }
+                newPlaylist.Groups.Add(new AIMP4Group(oldGroup.Path, newSongs));
+            }
+
+            newPlaylist.Summary.Add("ID", OldPlaylist.ID);
+            newPlaylist.Summary.Add("Name", OldPlaylist.Name);
+            newPlaylist.Summary.Add("NameIsAutoSet", "0");
+            newPlaylist.Summary.Add("ContentDuration", contentDuration.ToString());
+            newPlaylist.Summary.Add("ContentFiles", contentFiles.ToString());
+            newPlaylist.Summary.Add("ContentSize", contentSize.ToString());
+            newPlaylist.Summary.Add("PlaybackCursor", OldPlaylist.Cursor);
+
+            newPlaylist.Settings.Add("Flags", OldPlaylist.Flags);
+            newPlaylist.Settings.Add("FormatMainLine", "%IF(%R,%R - %T,%T)");
+            newPlaylist.Settings.Add("FormatSecondLine", "%E :: %H, %B, %S");
+            newPlaylist.Settings.Add("GroupFormatLine", "%D");
+
+            return newPlaylist;
         }
     }
 }

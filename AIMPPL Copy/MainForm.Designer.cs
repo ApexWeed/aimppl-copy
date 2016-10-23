@@ -33,6 +33,13 @@
             this.lstPlaylists = new System.Windows.Forms.ListBox();
             this.treSongs = new System.Windows.Forms.TreeView();
             this.imlCovers = new System.Windows.Forms.ImageList(this.components);
+            this.Tooltips = new System.Windows.Forms.ToolTip(this.components);
+            this.MenuStrip = new System.Windows.Forms.MenuStrip();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.upgradePlaylistsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.chkBulkMode = new Apex.Translation.Controls.TranslatableCheckBox();
+            this.btnFixPlaylist = new Apex.Translation.Controls.TranslatableButton();
             this.pgbProgress = new Apex.Controls.InfoProgressBar();
             this.btnCopy = new Apex.Translation.Controls.TranslatableButton();
             this.rdbScans = new Apex.Translation.Controls.TranslatableRadioButton();
@@ -61,10 +68,10 @@
             this.lblSongs = new Apex.Translation.Controls.TranslatableLabel();
             this.lblPlaylists = new Apex.Translation.Controls.TranslatableLabel();
             this.MainTitle = new Apex.Translation.Controls.TranslatableTitle();
-            this.btnFixPlaylist = new Apex.Translation.Controls.TranslatableButton();
             this.TooltipTranslator = new Apex.Translation.Controls.TranslatableTooltips();
-            this.Tooltips = new System.Windows.Forms.ToolTip(this.components);
-            this.chkBulkMode = new Apex.Translation.Controls.TranslatableCheckBox();
+            this.MenuItemTranslation = new Apex.Translation.Controls.TranslatableMenuItem();
+            this.upgradeAllPlaylistsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuStrip.SuspendLayout();
             this.grpGroup.SuspendLayout();
             this.grpSong.SuspendLayout();
             this.grpPlaylist.SuspendLayout();
@@ -74,7 +81,7 @@
             // 
             this.lstPlaylists.FormattingEnabled = true;
             this.lstPlaylists.ItemHeight = 12;
-            this.lstPlaylists.Location = new System.Drawing.Point(14, 24);
+            this.lstPlaylists.Location = new System.Drawing.Point(14, 48);
             this.lstPlaylists.Name = "lstPlaylists";
             this.lstPlaylists.Size = new System.Drawing.Size(193, 460);
             this.lstPlaylists.TabIndex = 0;
@@ -84,7 +91,7 @@
             // 
             this.treSongs.ImageIndex = 0;
             this.treSongs.ImageList = this.imlCovers;
-            this.treSongs.Location = new System.Drawing.Point(213, 24);
+            this.treSongs.Location = new System.Drawing.Point(213, 48);
             this.treSongs.Name = "treSongs";
             this.treSongs.SelectedImageIndex = 0;
             this.treSongs.Size = new System.Drawing.Size(316, 460);
@@ -98,11 +105,75 @@
             this.imlCovers.Images.SetKeyName(0, "16x16透明.png");
             this.imlCovers.Images.SetKeyName(1, "question.png");
             // 
+            // MenuStrip
+            // 
+            this.MenuStrip.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.MenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileToolStripMenuItem,
+            this.toolsToolStripMenuItem});
+            this.MenuStrip.Location = new System.Drawing.Point(0, 0);
+            this.MenuStrip.Name = "MenuStrip";
+            this.MenuStrip.Size = new System.Drawing.Size(784, 24);
+            this.MenuStrip.TabIndex = 20;
+            this.MenuStrip.Text = "menuStrip1";
+            // 
+            // fileToolStripMenuItem
+            // 
+            this.MenuItemTranslation.SetDefaultString(this.fileToolStripMenuItem, "");
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Text = "&File";
+            this.MenuItemTranslation.SetTranslationString(this.fileToolStripMenuItem, "MAIN.LABEL.FILE");
+            // 
+            // toolsToolStripMenuItem
+            // 
+            this.MenuItemTranslation.SetDefaultString(this.toolsToolStripMenuItem, "");
+            this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.upgradePlaylistsToolStripMenuItem,
+            this.upgradeAllPlaylistsToolStripMenuItem});
+            this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
+            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
+            this.toolsToolStripMenuItem.Text = "&Tools";
+            this.MenuItemTranslation.SetTranslationString(this.toolsToolStripMenuItem, "MAIN.LABEL.TOOLS");
+            // 
+            // upgradePlaylistsToolStripMenuItem
+            // 
+            this.MenuItemTranslation.SetDefaultString(this.upgradePlaylistsToolStripMenuItem, "");
+            this.upgradePlaylistsToolStripMenuItem.Name = "upgradePlaylistsToolStripMenuItem";
+            this.upgradePlaylistsToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.upgradePlaylistsToolStripMenuItem.Text = "&Upgrade Playlists";
+            this.MenuItemTranslation.SetTranslationString(this.upgradePlaylistsToolStripMenuItem, "MAIN.LABEL.UPGRADE_PLAYLISTS");
+            this.upgradePlaylistsToolStripMenuItem.Click += new System.EventHandler(this.upgradePlaylistsToolStripMenuItem_Click);
+            // 
+            // chkBulkMode
+            // 
+            this.chkBulkMode.AutoSize = true;
+            this.chkBulkMode.DefaultString = null;
+            this.chkBulkMode.Location = new System.Drawing.Point(535, 432);
+            this.chkBulkMode.Name = "chkBulkMode";
+            this.chkBulkMode.Size = new System.Drawing.Size(175, 16);
+            this.chkBulkMode.TabIndex = 19;
+            this.chkBulkMode.Text = "MAIN.LABEL.BULK_PLAYLIST";
+            this.chkBulkMode.TranslationString = "MAIN.LABEL.BULK_PLAYLIST";
+            this.chkBulkMode.UseVisualStyleBackColor = true;
+            // 
+            // btnFixPlaylist
+            // 
+            this.btnFixPlaylist.DefaultString = null;
+            this.btnFixPlaylist.Location = new System.Drawing.Point(535, 456);
+            this.btnFixPlaylist.Name = "btnFixPlaylist";
+            this.btnFixPlaylist.Size = new System.Drawing.Size(237, 23);
+            this.btnFixPlaylist.TabIndex = 18;
+            this.btnFixPlaylist.Text = "MAIN.BUTTON.FIX_PLAYLIST";
+            this.btnFixPlaylist.TranslationString = "MAIN.BUTTON.FIX_PLAYLIST";
+            this.btnFixPlaylist.UseVisualStyleBackColor = true;
+            this.btnFixPlaylist.Click += new System.EventHandler(this.btnFixPlaylist_Click);
+            // 
             // pgbProgress
             // 
             this.pgbProgress.CustomText = null;
             this.pgbProgress.DisplayStyle = Apex.Controls.ProgressBarDisplayText.CustomText;
-            this.pgbProgress.Location = new System.Drawing.Point(616, 461);
+            this.pgbProgress.Location = new System.Drawing.Point(616, 485);
             this.pgbProgress.Name = "pgbProgress";
             this.pgbProgress.Size = new System.Drawing.Size(156, 23);
             this.pgbProgress.TabIndex = 17;
@@ -110,7 +181,7 @@
             // btnCopy
             // 
             this.btnCopy.DefaultString = null;
-            this.btnCopy.Location = new System.Drawing.Point(535, 461);
+            this.btnCopy.Location = new System.Drawing.Point(535, 485);
             this.btnCopy.Name = "btnCopy";
             this.btnCopy.Size = new System.Drawing.Size(75, 23);
             this.btnCopy.TabIndex = 16;
@@ -123,7 +194,7 @@
             // 
             this.rdbScans.AutoSize = true;
             this.rdbScans.DefaultString = null;
-            this.rdbScans.Location = new System.Drawing.Point(535, 386);
+            this.rdbScans.Location = new System.Drawing.Point(535, 410);
             this.rdbScans.Name = "rdbScans";
             this.rdbScans.Size = new System.Drawing.Size(162, 16);
             this.rdbScans.TabIndex = 15;
@@ -136,7 +207,7 @@
             this.rdbAlbums.AutoSize = true;
             this.rdbAlbums.Checked = true;
             this.rdbAlbums.DefaultString = null;
-            this.rdbAlbums.Location = new System.Drawing.Point(535, 364);
+            this.rdbAlbums.Location = new System.Drawing.Point(535, 388);
             this.rdbAlbums.Name = "rdbAlbums";
             this.rdbAlbums.Size = new System.Drawing.Size(170, 16);
             this.rdbAlbums.TabIndex = 14;
@@ -149,7 +220,7 @@
             // 
             this.rdbSongs.AutoSize = true;
             this.rdbSongs.DefaultString = null;
-            this.rdbSongs.Location = new System.Drawing.Point(535, 342);
+            this.rdbSongs.Location = new System.Drawing.Point(535, 366);
             this.rdbSongs.Name = "rdbSongs";
             this.rdbSongs.Size = new System.Drawing.Size(162, 16);
             this.rdbSongs.TabIndex = 13;
@@ -165,7 +236,7 @@
             this.grpGroup.Controls.Add(this.lblGroupSongCount);
             this.grpGroup.Controls.Add(this.lblGroupSize);
             this.grpGroup.DefaultString = null;
-            this.grpGroup.Location = new System.Drawing.Point(535, 130);
+            this.grpGroup.Location = new System.Drawing.Point(535, 154);
             this.grpGroup.Name = "grpGroup";
             this.grpGroup.Size = new System.Drawing.Size(237, 100);
             this.grpGroup.TabIndex = 12;
@@ -242,7 +313,7 @@
             this.grpSong.Controls.Add(this.lblSongArtist);
             this.grpSong.Controls.Add(this.lblSongSize);
             this.grpSong.DefaultString = null;
-            this.grpSong.Location = new System.Drawing.Point(535, 236);
+            this.grpSong.Location = new System.Drawing.Point(535, 260);
             this.grpSong.Name = "grpSong";
             this.grpSong.Size = new System.Drawing.Size(237, 100);
             this.grpSong.TabIndex = 11;
@@ -331,7 +402,7 @@
             this.grpPlaylist.Controls.Add(this.lblSize);
             this.grpPlaylist.Controls.Add(this.lblCoverSize);
             this.grpPlaylist.DefaultString = null;
-            this.grpPlaylist.Location = new System.Drawing.Point(535, 24);
+            this.grpPlaylist.Location = new System.Drawing.Point(535, 48);
             this.grpPlaylist.Name = "grpPlaylist";
             this.grpPlaylist.Size = new System.Drawing.Size(237, 100);
             this.grpPlaylist.TabIndex = 10;
@@ -415,7 +486,7 @@
             // 
             this.lblSongs.AutoSize = true;
             this.lblSongs.DefaultString = null;
-            this.lblSongs.Location = new System.Drawing.Point(211, 9);
+            this.lblSongs.Location = new System.Drawing.Point(211, 33);
             this.lblSongs.Name = "lblSongs";
             this.lblSongs.Size = new System.Drawing.Size(110, 12);
             this.lblSongs.TabIndex = 8;
@@ -426,7 +497,7 @@
             // 
             this.lblPlaylists.AutoSize = true;
             this.lblPlaylists.DefaultString = null;
-            this.lblPlaylists.Location = new System.Drawing.Point(12, 9);
+            this.lblPlaylists.Location = new System.Drawing.Point(12, 33);
             this.lblPlaylists.Name = "lblPlaylists";
             this.lblPlaylists.Size = new System.Drawing.Size(130, 12);
             this.lblPlaylists.TabIndex = 1;
@@ -439,41 +510,26 @@
             this.MainTitle.ParentForm = this;
             this.MainTitle.TranslationString = "TITLE.MAIN";
             // 
-            // btnFixPlaylist
-            // 
-            this.btnFixPlaylist.DefaultString = null;
-            this.btnFixPlaylist.Location = new System.Drawing.Point(535, 432);
-            this.btnFixPlaylist.Name = "btnFixPlaylist";
-            this.btnFixPlaylist.Size = new System.Drawing.Size(237, 23);
-            this.btnFixPlaylist.TabIndex = 18;
-            this.btnFixPlaylist.Text = "MAIN.BUTTON.FIX_PLAYLIST";
-            this.btnFixPlaylist.TranslationString = "MAIN.BUTTON.FIX_PLAYLIST";
-            this.btnFixPlaylist.UseVisualStyleBackColor = true;
-            this.btnFixPlaylist.Click += new System.EventHandler(this.btnFixPlaylist_Click);
-            // 
             // TooltipTranslator
             // 
             this.TooltipTranslator.DefaultStrings = ((System.Collections.Generic.Dictionary<System.Windows.Forms.Control, string>)(resources.GetObject("TooltipTranslator.DefaultStrings")));
             this.TooltipTranslator.ToolTips = this.Tooltips;
             this.TooltipTranslator.TranslationStrings = ((System.Collections.Generic.Dictionary<System.Windows.Forms.Control, string>)(resources.GetObject("TooltipTranslator.TranslationStrings")));
             // 
-            // chkBulkMode
+            // upgradeAllPlaylistsToolStripMenuItem
             // 
-            this.chkBulkMode.AutoSize = true;
-            this.chkBulkMode.DefaultString = null;
-            this.chkBulkMode.Location = new System.Drawing.Point(535, 408);
-            this.chkBulkMode.Name = "chkBulkMode";
-            this.chkBulkMode.Size = new System.Drawing.Size(175, 16);
-            this.chkBulkMode.TabIndex = 19;
-            this.chkBulkMode.Text = "MAIN.LABEL.BULK_PLAYLIST";
-            this.chkBulkMode.TranslationString = "MAIN.LABEL.BULK_PLAYLIST";
-            this.chkBulkMode.UseVisualStyleBackColor = true;
+            this.MenuItemTranslation.SetDefaultString(this.upgradeAllPlaylistsToolStripMenuItem, "");
+            this.upgradeAllPlaylistsToolStripMenuItem.Name = "upgradeAllPlaylistsToolStripMenuItem";
+            this.upgradeAllPlaylistsToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.upgradeAllPlaylistsToolStripMenuItem.Text = "Upgrade &All Playlists";
+            this.MenuItemTranslation.SetTranslationString(this.upgradeAllPlaylistsToolStripMenuItem, "MAIN.LABEL.UPGRADE_ALL_PLAYLISTS");
+            this.upgradeAllPlaylistsToolStripMenuItem.Click += new System.EventHandler(this.upgradeAllPlaylistsToolStripMenuItem_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 498);
+            this.ClientSize = new System.Drawing.Size(784, 522);
             this.Controls.Add(this.chkBulkMode);
             this.Controls.Add(this.btnFixPlaylist);
             this.Controls.Add(this.pgbProgress);
@@ -488,10 +544,14 @@
             this.Controls.Add(this.treSongs);
             this.Controls.Add(this.lblPlaylists);
             this.Controls.Add(this.lstPlaylists);
+            this.Controls.Add(this.MenuStrip);
+            this.MainMenuStrip = this.MenuStrip;
             this.Name = "MainForm";
             this.Text = "TITLE.MAIN";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
+            this.MenuStrip.ResumeLayout(false);
+            this.MenuStrip.PerformLayout();
             this.grpGroup.ResumeLayout(false);
             this.grpGroup.PerformLayout();
             this.grpSong.ResumeLayout(false);
@@ -540,6 +600,12 @@
         private Apex.Translation.Controls.TranslatableTooltips TooltipTranslator;
         private System.Windows.Forms.ToolTip Tooltips;
         private Apex.Translation.Controls.TranslatableCheckBox chkBulkMode;
+        private System.Windows.Forms.MenuStrip MenuStrip;
+        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem upgradePlaylistsToolStripMenuItem;
+        private Apex.Translation.Controls.TranslatableMenuItem MenuItemTranslation;
+        private System.Windows.Forms.ToolStripMenuItem upgradeAllPlaylistsToolStripMenuItem;
     }
 }
 

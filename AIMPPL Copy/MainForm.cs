@@ -28,37 +28,9 @@ namespace AIMPPL_Copy
             InitializeComponent();
 
             LM = new LanguageManager("lang");
-            var languages = LM.GetLanguages();
-            if (languages.Where((x) => x.Code == CultureInfo.InstalledUICulture.Name).Count() == 1)
-            {
-                LM.MainLanguage = CultureInfo.InstalledUICulture.Name;
-                if (languages.Count > 1)
-                {
-                    LM.FallbackLanguage = languages[0].Code;
-                    if (LM.FallbackLanguage == LM.MainLanguage && languages.Count > 1)
-                    {
-                        LM.FallbackLanguage = languages[1].Code;
-                    }
-                }
-            }
-            else if (languages.Where((x) => x.Code.StartsWith(CultureInfo.InstalledUICulture.Name.Split('-')[0])).Count() >= 1)
-            {
-                LM.MainLanguage = languages.Where((x) => x.Code.StartsWith(CultureInfo.InstalledUICulture.Name.Split('-')[0])).First().Code;
-                if (languages.Count > 1)
-                {
-                    LM.FallbackLanguage = languages[0].Code;
-                    if (LM.FallbackLanguage == LM.MainLanguage && languages.Count > 1)
-                    {
-                        LM.FallbackLanguage = languages[1].Code;
-                    }
-                }
-            }
-            else
-            {
-                LM.MainLanguage = languages[0].Code;
-                LM.FallbackLanguage = languages[1].Code;
-            }
-
+            LM.UseOSLanguage("en-AU");
+            LM.AddAllControls(this);
+            
             var bindFlags = BindingFlags.Instance | BindingFlags.Public;
             var searchQueue = new Queue<Component>();
             foreach (Component control in Controls)
@@ -132,6 +104,12 @@ namespace AIMPPL_Copy
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            LoadPlaylists();
+        }
+
+        private void LoadPlaylists()
+        {
+            lstPlaylists.Items.Clear();
             // AIMP3 playlists.
             foreach (var file in Directory.GetFiles(Properties.Settings.Default.PlaylistPath, "*.aimppl"))
             {
@@ -477,6 +455,30 @@ namespace AIMPPL_Copy
             {
                 bulkPlaylistFixerForm = null;
             }
+        }
+
+        private void upgradePlaylistsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (lstPlaylists.SelectedItem != null && lstPlaylists.SelectedItem is Playlist)
+            {
+                var newPL = AIMP4.AIMP4Playlist.UpgradePlaylist(lstPlaylists.SelectedItem as AIMP3.AIMP3Playlist);
+                newPL.Save();
+                File.Delete((lstPlaylists.SelectedItem as Playlist).Path);
+                LoadPlaylists();
+            }
+        }
+
+        private void upgradeAllPlaylistsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var playlists = lstPlaylists.Items.Cast<Playlist>().Where((x) => x is AIMP3.AIMP3Playlist).Cast<AIMP3.AIMP3Playlist>().ToList();
+            foreach (var playlist in playlists)
+            {
+                var newPL = AIMP4.AIMP4Playlist.UpgradePlaylist(playlist);
+                newPL.Save();
+                File.Delete(playlist.Path);
+            }
+
+            LoadPlaylists();
         }
     }
 }

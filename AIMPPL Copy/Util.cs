@@ -9,6 +9,7 @@ namespace AIMPPL_Copy
     {
         private static Dictionary<string, bool> FileExistenceCache;
         private static HashSet<string> FolderScanCache;
+        private static Dictionary<string, CueSheet> CueSheetCache;
         private static string[] MusicExtensions = new string[]
         {
             "flac",
@@ -236,6 +237,38 @@ namespace AIMPPL_Copy
             return FileExistenceCache[Path];
         }
 
+        public static bool SongExists(string Path)
+        {
+            if (CueSheetCache == null)
+            {
+                CueSheetCache = new Dictionary<string, CueSheet>();
+            }
+
+            // Only load a CUE if the song is actually loaded from one.
+            if (Path.Contains(".cue:"))
+            {
+                var parts = Path.Split(':');
+                var file = $"{parts[0]}:{parts[1]}";
+                // AIMP stores indexes zero based, CUE is one based.
+                var index = int.Parse(parts[2]) + 1;
+
+                // Cache the CUE sheet.
+                if (!CueSheetCache.ContainsKey(file))
+                {
+                    CueSheetCache.Add(file, new CueSheet(file));
+                }
+
+                var sheet = CueSheetCache[file];
+
+                return sheet.Tracks.Any((x) => x.ID == index);
+            }
+            else
+            {
+                // Proceed as normal.
+                return FileExists(Path);
+            }
+        }
+
         public static TagLib.Tag GetTags(string Filename)
         {
             if (TagCache == null)
@@ -274,12 +307,13 @@ namespace AIMPPL_Copy
 
             foreach (var song in songs)
             {
-                if (!FileExists(song.Path))
+                if (!SongExists(song.Path))
                 {
                     var changed = false;
                     foreach (var extension in MusicExtensions)
                     {
                         var newPath = Path.Combine(Path.GetDirectoryName(song.Path), Path.ChangeExtension(song.Path, extension));
+                        // No point checking for CUE sheets here.
                         if (FileExists(newPath))
                         {
                             FormatChanged.Add(new FormatChange(song, extension));

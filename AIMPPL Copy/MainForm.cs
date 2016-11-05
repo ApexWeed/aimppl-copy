@@ -22,6 +22,7 @@ namespace AIMPPL_Copy
         private LanguageManager LM;
         private PlaylistFixerForm playlistFixerForm;
         private BulkPlaylistFixerForm bulkPlaylistFixerForm;
+        private StatisticsForm statisticsForm;
 
         public MainForm()
         {
@@ -455,6 +456,10 @@ namespace AIMPPL_Copy
             {
                 bulkPlaylistFixerForm = null;
             }
+            else if (Child is StatisticsForm)
+            {
+                statisticsForm = null;
+            }
         }
 
         private void upgradePlaylistsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -479,6 +484,19 @@ namespace AIMPPL_Copy
             }
 
             LoadPlaylists();
+        }
+
+        private void statisticsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (statisticsForm == null)
+            {
+                statisticsForm = new StatisticsForm(LM, lstPlaylists.Items.Cast<Playlist>().ToList(), this);
+                statisticsForm.Show();
+            }
+            else
+            {
+                statisticsForm.BringToFront();
+            }
         }
     }
 }

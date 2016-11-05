@@ -4,7 +4,7 @@ using System.IO;
 
 namespace AIMPPL_Copy
 {
-    public class Group
+    public class Group : IEquatable<Group>
     {
         public virtual string Path
         {
@@ -102,6 +102,76 @@ namespace AIMPPL_Copy
         public override string ToString()
         {
             return Name;
+        }
+
+        public override int GetHashCode()
+        {
+            var code = Path.GetHashCode();
+            
+            foreach (var song in Songs)
+            {
+                code ^= song.GetHashCode();
+            }
+
+            return code;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(obj, null))
+            {
+                return false;
+            }
+            else if (!(obj is Group))
+            {
+                return false;
+            }
+            else
+            {
+                return this.Equals(obj as Group);
+            }
+        }
+
+        public bool Equals(Group other)
+        {
+            if (ReferenceEquals(other, null))
+            {
+                return false;
+            }
+            else if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+            else
+            {
+                if (Path == other.Path)
+                {
+                    if (Songs.Count == other.Songs.Count)
+                    {
+                        foreach (var song in Songs)
+                        {
+                            if (!other.Songs.Contains(song))
+                            {
+                                return false;
+                            }
+                        }
+
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        public static bool operator ==(Group a, Group b)
+        {
+            return a.Equals(b);
+        }
+
+        public static bool operator !=(Group a, Group b)
+        {
+            return !a.Equals(b);
         }
     }
 }

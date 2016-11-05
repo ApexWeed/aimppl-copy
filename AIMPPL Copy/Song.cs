@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AIMPPL_Copy
 {
-    public class Song
+    public class Song : IEquatable<Song>
     {
         public virtual string Path
         {
@@ -161,6 +161,53 @@ namespace AIMPPL_Copy
                     return $"{Artist} - {Title}";
                 }
             }
+        }
+
+        public override int GetHashCode()
+        {
+            return Path.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(obj, null))
+            {
+                return false;
+            }
+            else if (!(obj is Song))
+            {
+                return false;
+            }
+            else
+            {
+                return this.Equals(obj as Song);
+            }
+        }
+
+        public bool Equals(Song other)
+        {
+            if (ReferenceEquals(other, null))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+            else
+            {
+                return Path == other.Path;
+            }
+        }
+
+        public static bool operator ==(Song a, Song b)
+        {
+            return a.Equals(b);
+        }
+
+        public static bool operator !=(Song a, Song b)
+        {
+            return !a.Equals(b);
         }
     }
 }

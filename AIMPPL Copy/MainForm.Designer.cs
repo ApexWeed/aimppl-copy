@@ -38,6 +38,7 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.upgradePlaylistsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.upgradeAllPlaylistsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.chkBulkMode = new Apex.Translation.Controls.TranslatableCheckBox();
             this.btnFixPlaylist = new Apex.Translation.Controls.TranslatableButton();
             this.pgbProgress = new Apex.Controls.InfoProgressBar();
@@ -70,7 +71,7 @@
             this.MainTitle = new Apex.Translation.Controls.TranslatableTitle();
             this.TooltipTranslator = new Apex.Translation.Controls.TranslatableTooltips();
             this.MenuItemTranslation = new Apex.Translation.Controls.TranslatableMenuItem();
-            this.upgradeAllPlaylistsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.statisticsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuStrip.SuspendLayout();
             this.grpGroup.SuspendLayout();
             this.grpSong.SuspendLayout();
@@ -130,7 +131,8 @@
             this.MenuItemTranslation.SetDefaultString(this.toolsToolStripMenuItem, "");
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.upgradePlaylistsToolStripMenuItem,
-            this.upgradeAllPlaylistsToolStripMenuItem});
+            this.upgradeAllPlaylistsToolStripMenuItem,
+            this.statisticsToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
             this.toolsToolStripMenuItem.Text = "&Tools";
@@ -144,6 +146,15 @@
             this.upgradePlaylistsToolStripMenuItem.Text = "&Upgrade Playlists";
             this.MenuItemTranslation.SetTranslationString(this.upgradePlaylistsToolStripMenuItem, "MAIN.LABEL.UPGRADE_PLAYLISTS");
             this.upgradePlaylistsToolStripMenuItem.Click += new System.EventHandler(this.upgradePlaylistsToolStripMenuItem_Click);
+            // 
+            // upgradeAllPlaylistsToolStripMenuItem
+            // 
+            this.MenuItemTranslation.SetDefaultString(this.upgradeAllPlaylistsToolStripMenuItem, "");
+            this.upgradeAllPlaylistsToolStripMenuItem.Name = "upgradeAllPlaylistsToolStripMenuItem";
+            this.upgradeAllPlaylistsToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.upgradeAllPlaylistsToolStripMenuItem.Text = "Upgrade &All Playlists";
+            this.MenuItemTranslation.SetTranslationString(this.upgradeAllPlaylistsToolStripMenuItem, "MAIN.LABEL.UPGRADE_ALL_PLAYLISTS");
+            this.upgradeAllPlaylistsToolStripMenuItem.Click += new System.EventHandler(this.upgradeAllPlaylistsToolStripMenuItem_Click);
             // 
             // chkBulkMode
             // 
@@ -516,14 +527,14 @@
             this.TooltipTranslator.ToolTips = this.Tooltips;
             this.TooltipTranslator.TranslationStrings = ((System.Collections.Generic.Dictionary<System.Windows.Forms.Control, string>)(resources.GetObject("TooltipTranslator.TranslationStrings")));
             // 
-            // upgradeAllPlaylistsToolStripMenuItem
+            // statisticsToolStripMenuItem
             // 
-            this.MenuItemTranslation.SetDefaultString(this.upgradeAllPlaylistsToolStripMenuItem, "");
-            this.upgradeAllPlaylistsToolStripMenuItem.Name = "upgradeAllPlaylistsToolStripMenuItem";
-            this.upgradeAllPlaylistsToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
-            this.upgradeAllPlaylistsToolStripMenuItem.Text = "Upgrade &All Playlists";
-            this.MenuItemTranslation.SetTranslationString(this.upgradeAllPlaylistsToolStripMenuItem, "MAIN.LABEL.UPGRADE_ALL_PLAYLISTS");
-            this.upgradeAllPlaylistsToolStripMenuItem.Click += new System.EventHandler(this.upgradeAllPlaylistsToolStripMenuItem_Click);
+            this.MenuItemTranslation.SetDefaultString(this.statisticsToolStripMenuItem, "");
+            this.statisticsToolStripMenuItem.Name = "statisticsToolStripMenuItem";
+            this.statisticsToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.statisticsToolStripMenuItem.Text = "&Statistics";
+            this.MenuItemTranslation.SetTranslationString(this.statisticsToolStripMenuItem, "MAIN.LABEL.STATISTICS");
+            this.statisticsToolStripMenuItem.Click += new System.EventHandler(this.statisticsToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -606,6 +617,7 @@
         private System.Windows.Forms.ToolStripMenuItem upgradePlaylistsToolStripMenuItem;
         private Apex.Translation.Controls.TranslatableMenuItem MenuItemTranslation;
         private System.Windows.Forms.ToolStripMenuItem upgradeAllPlaylistsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem statisticsToolStripMenuItem;
     }
 }
 

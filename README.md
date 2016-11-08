@@ -12,5 +12,5 @@ Originally a tool to copy songs from AIMP playlists while reserving partial fold
 - Manual song replacement if automatic fails.
 
 # 日本語も含んでいる
--　OSの言語は日本語に設定すれば本アプルのインタフェースも日本語にします。
+- OSの言語は日本語に設定すれば本アプルのインタフェースも日本語にします。
 - 最初のフォームは英語だけですのでAIMPのプレイリストのフォルダを選択してください。

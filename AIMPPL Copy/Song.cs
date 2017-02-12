@@ -126,7 +126,14 @@ namespace AIMPPL_Copy
         {
             get
             {
-                return System.IO.Path.GetDirectoryName(Path);
+                if (Path.LastIndexOf(':') > 1)
+                {
+                    return Path.Substring(0, Path.LastIndexOf(':'));
+                }
+                else
+                {
+                    return System.IO.Path.GetDirectoryName(Path);
+                }
             }
         }
 

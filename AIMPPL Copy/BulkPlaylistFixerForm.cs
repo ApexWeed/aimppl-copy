@@ -67,7 +67,7 @@ namespace AIMPPL_Copy
             pnlBottomRightLeft.Width = pnlBottomRight.Width / 2;
         }
 
-        private void ptcTree_DestinationClicked(object sender, PlaylistTree.PlaylistTreeControl.DestinationClickedEventArgs e)
+        private void ptcTree_DestinationClicked(object sender, PlaylistTreeControl.DestinationClickedEventArgs e)
         {
             var path = e.Node.DestinationFilename;
             if (string.IsNullOrWhiteSpace(path))
@@ -105,6 +105,13 @@ namespace AIMPPL_Copy
                         {
                             song.Path = newPath;
                         }
+                        else
+                        {
+                            if (File.Exists(newPath.Substring(0, newPath.LastIndexOf(':'))))
+                            {
+                                song.Path = newPath;
+                            }
+                        }
                         playlistNode.Nodes.RemoveAt(i);
                         i--;
                     }
@@ -129,7 +136,7 @@ namespace AIMPPL_Copy
                     {
                         continue;
                     }
-                    var foundSongs = Util.SearchSongs(songs, DirectoryDialogue.SelectedPath, chkScanTags.Checked);
+                    var foundSongs = Util.SearchSongs(songs, DirectoryDialogue.SelectedPath, chkScanTags.Checked, chkScanCue.Checked);
 
                     foreach(var song in foundSongs)
                     {

@@ -339,8 +339,9 @@ namespace AIMPPL_Copy
         /// <param name="MissingSongs">List of songs to search for.</param>
         /// <param name="Directory">Directory to search in.</param>
         /// <param name="SearchTags">Whether to scan tags if filename search fails.</param>
+        /// <param name="SearchCue">Whether to scan cue files if filename search fails.</param>
         /// <returns>Tuple of songs and found filepaths.</returns>
-        public static List<Tuple<Song, string>> SearchSongs(List<Song> MissingSongs, string Directory, bool SearchTags)
+        public static List<Tuple<Song, string>> SearchSongs(List<Song> MissingSongs, string Directory, bool SearchTags, bool SearchCue)
         {
             var foundSongs = new List<Tuple<Song, string>>();
             var files = Apex.FileUtil.GetFiles(Directory);
@@ -375,11 +376,57 @@ namespace AIMPPL_Copy
                 }
             }
 
-            if (SearchTags)
+            if (SearchCue)
             {
                 foreach (var song in foundSongs.Select((x) => x.Item1))
                 {
                     MissingSongs.Remove(song);
+                }
+
+                if (MissingSongs.Count > 0)
+                {
+                    var filteredFiles = files.Where((x) => string.Compare(Path.GetExtension(x), ".cue", true) == 0);
+
+                    foreach (var cueFile in filteredFiles)
+                    {
+                        if (MissingSongs.Count == 0)
+                        {
+                            break;
+                        }
+
+                        var cueSheet = new CueSheet(cueFile);
+
+                        for (int i = 0; i < MissingSongs.Count; i++)
+                        {
+                            var song = MissingSongs[i];
+                            if (string.Compare(song.Album, cueSheet.Album, true) == 0)
+                            {
+                                for (int j = 0; j < cueSheet.Tracks.Count; j++)
+                                {
+                                    if (string.Compare(song.Title, cueSheet.Tracks[j].Title, true) == 0)
+                                    {
+                                        foundSongs.Add(new Tuple<Song, string>(song, $"{cueFile}:{j}"));
+                                        MissingSongs.RemoveAt(i);
+                                        i--;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (SearchTags)
+            {
+                // As the list might have been pruned in the cue search, we can't just remove
+                // all the entries without checking first.
+                foreach (var song in foundSongs.Select((x) => x.Item1))
+                {
+                    if (MissingSongs.Contains(song))
+                    {
+                        MissingSongs.Remove(song);
+                    }
                 }
 
                 // Songs that couldn't be found from path alone.
@@ -412,7 +459,7 @@ namespace AIMPPL_Copy
                         for (int i = 0; i < MissingSongs.Count; i++)
                         {
                             var song = MissingSongs[i];
-                            if (song.Title == tag.Title && song.Album == tag.Album)
+                            if (string.Compare(song.Title, tag.Title, true) == 0 && string.Compare(song.Album, tag.Album, true) == 0)
                             {
                                 // That's probably the right song.
                                 foundSongs.Add(new Tuple<Song, string>(song, file));

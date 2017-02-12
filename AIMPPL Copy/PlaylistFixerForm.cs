@@ -181,7 +181,7 @@ namespace AIMPPL_Copy
             if (DirectoryDialogue.ShowDialog() == DialogResult.OK)
             {
                 var songs = dgvMissing.Rows.Cast<DataGridViewRow>().Where((x) => !(bool)(x.Cells[clmChange.Index].Value)).Select((x) => x.Cells[clmSongBind.Index].Value as Song).ToList();
-                var foundSongs = Util.SearchSongs(songs, DirectoryDialogue.SelectedPath, chkScanTags.Checked);
+                var foundSongs = Util.SearchSongs(songs, DirectoryDialogue.SelectedPath, chkScanTags.Checked, false);
 
                 var rows = dgvMissing.Rows.Cast<DataGridViewRow>();
                 foreach (var song in foundSongs)

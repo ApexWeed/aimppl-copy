@@ -31,6 +31,9 @@
             this.pnlBottom = new System.Windows.Forms.Panel();
             this.pnlBottomRight = new System.Windows.Forms.Panel();
             this.pnlBottomRightRight = new System.Windows.Forms.Panel();
+            this.pnlBottomRightRightRight = new System.Windows.Forms.Panel();
+            this.chkScanCue = new Apex.Translation.Controls.TranslatableCheckBox();
+            this.pnlBottomRightRightLeft = new System.Windows.Forms.Panel();
             this.chkScanTags = new Apex.Translation.Controls.TranslatableCheckBox();
             this.pnlBottomRightLeft = new System.Windows.Forms.Panel();
             this.btnSearch = new Apex.Translation.Controls.TranslatableButton();
@@ -44,6 +47,8 @@
             this.pnlBottom.SuspendLayout();
             this.pnlBottomRight.SuspendLayout();
             this.pnlBottomRightRight.SuspendLayout();
+            this.pnlBottomRightRightRight.SuspendLayout();
+            this.pnlBottomRightRightLeft.SuspendLayout();
             this.pnlBottomRightLeft.SuspendLayout();
             this.pnlBottomLeft.SuspendLayout();
             this.pnlTop.SuspendLayout();
@@ -64,25 +69,56 @@
             this.pnlBottomRight.Controls.Add(this.pnlBottomRightRight);
             this.pnlBottomRight.Controls.Add(this.pnlBottomRightLeft);
             this.pnlBottomRight.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlBottomRight.Location = new System.Drawing.Point(329, 0);
+            this.pnlBottomRight.Location = new System.Drawing.Point(247, 0);
             this.pnlBottomRight.Name = "pnlBottomRight";
-            this.pnlBottomRight.Size = new System.Drawing.Size(660, 29);
+            this.pnlBottomRight.Size = new System.Drawing.Size(742, 29);
             this.pnlBottomRight.TabIndex = 2;
             // 
             // pnlBottomRightRight
             // 
-            this.pnlBottomRightRight.Controls.Add(this.chkScanTags);
+            this.pnlBottomRightRight.Controls.Add(this.pnlBottomRightRightRight);
+            this.pnlBottomRightRight.Controls.Add(this.pnlBottomRightRightLeft);
             this.pnlBottomRightRight.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlBottomRightRight.Location = new System.Drawing.Point(330, 0);
+            this.pnlBottomRightRight.Location = new System.Drawing.Point(247, 0);
             this.pnlBottomRightRight.Name = "pnlBottomRightRight";
-            this.pnlBottomRightRight.Size = new System.Drawing.Size(330, 29);
+            this.pnlBottomRightRight.Size = new System.Drawing.Size(495, 29);
             this.pnlBottomRightRight.TabIndex = 2;
+            // 
+            // pnlBottomRightRightRight
+            // 
+            this.pnlBottomRightRightRight.Controls.Add(this.chkScanCue);
+            this.pnlBottomRightRightRight.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlBottomRightRightRight.Location = new System.Drawing.Point(247, 0);
+            this.pnlBottomRightRightRight.Name = "pnlBottomRightRightRight";
+            this.pnlBottomRightRightRight.Size = new System.Drawing.Size(248, 29);
+            this.pnlBottomRightRightRight.TabIndex = 2;
+            // 
+            // chkScanCue
+            // 
+            this.chkScanCue.AutoSize = true;
+            this.chkScanCue.DefaultString = null;
+            this.chkScanCue.Location = new System.Drawing.Point(6, 7);
+            this.chkScanCue.Name = "chkScanCue";
+            this.chkScanCue.Size = new System.Drawing.Size(193, 16);
+            this.chkScanCue.TabIndex = 0;
+            this.chkScanCue.Text = "FIX_PLAYLIST.LABEL.SCAN_CUE";
+            this.chkScanCue.TranslationString = "FIX_PLAYLIST.LABEL.SCAN_CUE";
+            this.chkScanCue.UseVisualStyleBackColor = true;
+            // 
+            // pnlBottomRightRightLeft
+            // 
+            this.pnlBottomRightRightLeft.Controls.Add(this.chkScanTags);
+            this.pnlBottomRightRightLeft.Dock = System.Windows.Forms.DockStyle.Left;
+            this.pnlBottomRightRightLeft.Location = new System.Drawing.Point(0, 0);
+            this.pnlBottomRightRightLeft.Name = "pnlBottomRightRightLeft";
+            this.pnlBottomRightRightLeft.Size = new System.Drawing.Size(247, 29);
+            this.pnlBottomRightRightLeft.TabIndex = 1;
             // 
             // chkScanTags
             // 
             this.chkScanTags.AutoSize = true;
             this.chkScanTags.DefaultString = null;
-            this.chkScanTags.Location = new System.Drawing.Point(6, 7);
+            this.chkScanTags.Location = new System.Drawing.Point(0, 7);
             this.chkScanTags.Name = "chkScanTags";
             this.chkScanTags.Size = new System.Drawing.Size(200, 16);
             this.chkScanTags.TabIndex = 0;
@@ -97,7 +133,7 @@
             this.pnlBottomRightLeft.Dock = System.Windows.Forms.DockStyle.Left;
             this.pnlBottomRightLeft.Location = new System.Drawing.Point(0, 0);
             this.pnlBottomRightLeft.Name = "pnlBottomRightLeft";
-            this.pnlBottomRightLeft.Size = new System.Drawing.Size(330, 29);
+            this.pnlBottomRightLeft.Size = new System.Drawing.Size(247, 29);
             this.pnlBottomRightLeft.TabIndex = 1;
             // 
             // btnSearch
@@ -106,7 +142,7 @@
             this.btnSearch.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnSearch.Location = new System.Drawing.Point(0, 0);
             this.btnSearch.Name = "btnSearch";
-            this.btnSearch.Size = new System.Drawing.Size(330, 29);
+            this.btnSearch.Size = new System.Drawing.Size(247, 29);
             this.btnSearch.TabIndex = 0;
             this.btnSearch.Text = "FIX_PLAYLIST.BUTTON.SEARCH";
             this.btnSearch.TranslationString = "FIX_PLAYLIST.BUTTON.SEARCH";
@@ -119,7 +155,7 @@
             this.pnlBottomLeft.Dock = System.Windows.Forms.DockStyle.Left;
             this.pnlBottomLeft.Location = new System.Drawing.Point(0, 0);
             this.pnlBottomLeft.Name = "pnlBottomLeft";
-            this.pnlBottomLeft.Size = new System.Drawing.Size(329, 29);
+            this.pnlBottomLeft.Size = new System.Drawing.Size(247, 29);
             this.pnlBottomLeft.TabIndex = 1;
             // 
             // btnApply
@@ -128,7 +164,7 @@
             this.btnApply.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnApply.Location = new System.Drawing.Point(0, 0);
             this.btnApply.Name = "btnApply";
-            this.btnApply.Size = new System.Drawing.Size(329, 29);
+            this.btnApply.Size = new System.Drawing.Size(247, 29);
             this.btnApply.TabIndex = 0;
             this.btnApply.Text = "FIX_PLAYLIST.BUTTON.APPLY";
             this.btnApply.TranslationString = "FIX_PLAYLIST.BUTTON.APPLY";
@@ -189,7 +225,10 @@
             this.pnlBottom.ResumeLayout(false);
             this.pnlBottomRight.ResumeLayout(false);
             this.pnlBottomRightRight.ResumeLayout(false);
-            this.pnlBottomRightRight.PerformLayout();
+            this.pnlBottomRightRightRight.ResumeLayout(false);
+            this.pnlBottomRightRightRight.PerformLayout();
+            this.pnlBottomRightRightLeft.ResumeLayout(false);
+            this.pnlBottomRightRightLeft.PerformLayout();
             this.pnlBottomRightLeft.ResumeLayout(false);
             this.pnlBottomLeft.ResumeLayout(false);
             this.pnlTop.ResumeLayout(false);
@@ -212,5 +251,8 @@
         private System.Windows.Forms.Panel pnlBottomRightRight;
         private Apex.Translation.Controls.TranslatableCheckBox chkScanTags;
         private System.Windows.Forms.Panel pnlBottomRightLeft;
+        private System.Windows.Forms.Panel pnlBottomRightRightRight;
+        private System.Windows.Forms.Panel pnlBottomRightRightLeft;
+        private Apex.Translation.Controls.TranslatableCheckBox chkScanCue;
     }
 }

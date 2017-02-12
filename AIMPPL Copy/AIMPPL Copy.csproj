@@ -68,11 +68,11 @@
     <Compile Include="AIMP4\AIMP4Group.cs" />
     <Compile Include="AIMP4\AIMP4Playlist.cs" />
     <Compile Include="AIMP4\AIMP4Song.cs" />
-    <Compile Include="BulkPlaylistFixerForm.cs">
+    <Compile Include="PlaylistFixerForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="BulkPlaylistFixerForm.Designer.cs">
-      <DependentUpon>BulkPlaylistFixerForm.cs</DependentUpon>
+    <Compile Include="PlaylistFixerForm.Designer.cs">
+      <DependentUpon>PlaylistFixerForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Cover.cs" />
     <Compile Include="CueSheet.cs" />
@@ -86,12 +86,6 @@
     </Compile>
     <Compile Include="Group.cs" />
     <Compile Include="Playlist.cs" />
-    <Compile Include="PlaylistFixerForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="PlaylistFixerForm.Designer.cs">
-      <DependentUpon>PlaylistFixerForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="PlaylistTree\PlaylistNode.cs" />
     <Compile Include="PlaylistTree\PlaylistTreeControl.cs">
       <SubType>UserControl</SubType>
@@ -113,14 +107,11 @@
       <DependentUpon>StatisticsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Util.cs" />
-    <EmbeddedResource Include="BulkPlaylistFixerForm.resx">
-      <DependentUpon>BulkPlaylistFixerForm.cs</DependentUpon>
+    <EmbeddedResource Include="PlaylistFixerForm.resx">
+      <DependentUpon>PlaylistFixerForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="PlaylistFixerForm.resx">
-      <DependentUpon>PlaylistFixerForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="PlaylistTree\PlaylistTreeControl.resx">
       <DependentUpon>PlaylistTreeControl.cs</DependentUpon>

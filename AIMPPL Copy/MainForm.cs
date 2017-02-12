@@ -20,8 +20,7 @@ namespace AIMPPL_Copy
     {
         private Dictionary<string, int> CoverMap;
         private LanguageManager LM;
-        private PlaylistFixerForm playlistFixerForm;
-        private BulkPlaylistFixerForm bulkPlaylistFixerForm;
+        private PlaylistFixerForm bulkPlaylistFixerForm;
         private StatisticsForm statisticsForm;
 
         public MainForm()
@@ -420,7 +419,7 @@ namespace AIMPPL_Copy
                 if (bulkPlaylistFixerForm == null)
                 {
                     var playlists = lstPlaylists.Items.Cast<Playlist>().ToList();
-                    bulkPlaylistFixerForm = new BulkPlaylistFixerForm(LM, playlists, this);
+                    bulkPlaylistFixerForm = new PlaylistFixerForm(LM, playlists, this);
                     bulkPlaylistFixerForm.Show();
                 }
                 else
@@ -436,13 +435,13 @@ namespace AIMPPL_Copy
                 {
                     if (bulkPlaylistFixerForm == null)
                     {
-                        bulkPlaylistFixerForm = new BulkPlaylistFixerForm(LM, lstPlaylists.SelectedItem as Playlist, this);
+                        bulkPlaylistFixerForm = new PlaylistFixerForm(LM, lstPlaylists.SelectedItem as Playlist, this);
                         bulkPlaylistFixerForm.Show();
                     }
                     else
                     {
-                        playlistFixerForm.LoadPlaylist(lstPlaylists.SelectedItem as Playlist);
-                        playlistFixerForm.BringToFront();
+                        bulkPlaylistFixerForm.LoadSinglePlaylist(lstPlaylists.SelectedItem as Playlist);
+                        bulkPlaylistFixerForm.BringToFront();
                     }
                 }
             }
@@ -451,10 +450,6 @@ namespace AIMPPL_Copy
         public void ChildClosed(Form Child)
         {
             if (Child is PlaylistFixerForm)
-            {
-                playlistFixerForm = null;
-            }
-            else if (Child is BulkPlaylistFixerForm)
             {
                 bulkPlaylistFixerForm = null;
             }

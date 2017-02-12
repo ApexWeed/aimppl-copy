@@ -84,8 +84,10 @@ namespace AIMPPL_Copy
 
         private void BulkPlaylistFixerForm_SizeChanged(object sender, EventArgs e)
         {
-            pnlBottomLeft.Width = pnlBottom.Width / 3;
-            pnlBottomRightLeft.Width = pnlBottomRight.Width / 2;
+            // I'm not proud of this one.
+            pnlBottomLeft.Width = pnlBottom.Width / 4;
+            pnlBottomRightLeft.Width = pnlBottomRight.Width / 3;
+            pnlBottomRightRightLeft.Width = pnlBottomRightRight.Width / 2;
         }
 
         private void ptcTree_DestinationClicked(object sender, PlaylistTreeControl.DestinationClickedEventArgs e)

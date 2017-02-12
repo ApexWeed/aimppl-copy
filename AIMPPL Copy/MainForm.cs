@@ -425,6 +425,8 @@ namespace AIMPPL_Copy
                 }
                 else
                 {
+                    var playlists = lstPlaylists.Items.Cast<Playlist>().ToList();
+                    bulkPlaylistFixerForm.LoadPlaylists(playlists);
                     bulkPlaylistFixerForm.BringToFront();
                 }
             }
@@ -432,10 +434,10 @@ namespace AIMPPL_Copy
             {
                 if (lstPlaylists.SelectedItem != null && lstPlaylists.SelectedItem is Playlist)
                 {
-                    if (playlistFixerForm == null)
+                    if (bulkPlaylistFixerForm == null)
                     {
-                        playlistFixerForm = new PlaylistFixerForm(LM, lstPlaylists.SelectedItem as Playlist, this);
-                        playlistFixerForm.Show();
+                        bulkPlaylistFixerForm = new BulkPlaylistFixerForm(LM, lstPlaylists.SelectedItem as Playlist, this);
+                        bulkPlaylistFixerForm.Show();
                     }
                     else
                     {

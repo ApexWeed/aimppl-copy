@@ -20,6 +20,10 @@ namespace AIMPPL_Copy
         private List<Playlist> playlists;
         new private MainForm Parent;
 
+        public BulkPlaylistFixerForm(LanguageManager LanguageManager, Playlist Playlist, MainForm Parent)
+        : this(LanguageManager, new List<Playlist>(new Playlist[] { Playlist }), Parent)
+        { }
+
         public BulkPlaylistFixerForm(LanguageManager LanguageManager, List<Playlist> Playlists, MainForm Parent)
         {
             InitializeComponent();
@@ -40,7 +44,7 @@ namespace AIMPPL_Copy
             }
         }
         
-        private bool LoadPlaylist(Playlist Playlist)
+        private void LoadPlaylist(Playlist Playlist)
         {
             var missing = new List<Song>();
             var formatChanged = new List<FormatChange>();
@@ -50,10 +54,27 @@ namespace AIMPPL_Copy
             if (missing.Count + formatChanged.Count > 0)
             {
                 ptcTree.AddPlaylist(Playlist, missing, formatChanged);
-                return true;
             }
+        }
 
-            return false;
+        public void LoadSinglePlaylist(Playlist Playlist)
+        {
+            ptcTree.Clear();
+            playlists.Clear();
+            playlists.Add(Playlist);
+
+            LoadPlaylist(Playlist);
+        }
+
+        public void LoadPlaylists(List<Playlist> Playlists)
+        {
+            ptcTree.Clear();
+            playlists = Playlists;
+
+            foreach (var playlist in Playlists)
+            {
+                LoadPlaylist(playlist);
+            }
         }
 
         private void BulkPlaylistFixerForm_FormClosing(object sender, FormClosingEventArgs e)

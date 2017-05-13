@@ -7,11 +7,11 @@ namespace AIMPPL_Copy
         public string Path;
         public long Size;
 
-        public Cover(string Path)
+        public Cover(string path)
         {
-            this.Path = Path;
+            Path = path;
 
-            Size = Path == null ? 0 : new FileInfo(Path).Length;
+            Size = path == null ? 0 : new FileInfo(path).Length;
         }
     }
 }

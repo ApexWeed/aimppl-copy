@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Aga.Controls.Tree;
 
@@ -11,67 +7,102 @@ namespace AIMPPL_Copy.PlaylistTree
 {
     public class PlaylistTreeNodeBase
     {
+        public PlaylistTreeNodeBase() : this(string.Empty)
+        {
+        }
+
+        public PlaylistTreeNodeBase(string text)
+        {
+            _text = text;
+            _nodes = new NodeCollection(this);
+        }
+
+        private PlaylistTreeModel FindModel()
+        {
+            var node = this;
+            while (node != null)
+            {
+                if (node.Model != null)
+                    return node.Model;
+                node = node.Parent;
+            }
+            return null;
+        }
+
+        protected void NotifyModel()
+        {
+            var model = FindModel();
+            if (model != null && Parent != null)
+            {
+                var path = model.GetPath(Parent);
+                if (path != null)
+                {
+                    var args = new TreeModelEventArgs(path, new[] {Index}, new object[] {this});
+                    model.OnNodesChanged(args);
+                }
+            }
+        }
+
+        public void RemoveItem(int index)
+        {
+            Nodes.RemoveAt(index);
+        }
+
+        public override string ToString()
+        {
+            return Text;
+        }
+
         #region NodeCollection
 
         protected class NodeCollection : Collection<PlaylistTreeNodeBase>
         {
-            private PlaylistTreeNodeBase owner;
+            private readonly PlaylistTreeNodeBase _owner;
 
-            public NodeCollection(PlaylistTreeNodeBase Owner)
+            public NodeCollection(PlaylistTreeNodeBase owner)
             {
-                this.owner = Owner;
+                _owner = owner;
             }
 
             protected override void ClearItems()
             {
-                while (this.Count != 0)
+                while (Count != 0)
+                    RemoveAt(Count - 1);
+            }
+
+            protected override void InsertItem(int index, PlaylistTreeNodeBase item)
+            {
+                if (item == null)
+                    throw new ArgumentNullException(nameof(item));
+
+                if (item.Parent != _owner)
                 {
-                    this.RemoveAt(this.Count - 1);
+                    item.Parent?.Nodes.Remove(item);
+                    item._parent = _owner;
+                    base.InsertItem(index, item);
+
+                    var model = _owner.FindModel();
+                    model?.OnNodeInserted(_owner, index, item);
                 }
             }
 
-            protected override void InsertItem(int Index, PlaylistTreeNodeBase Item)
+            protected override void RemoveItem(int index)
             {
-                if (Item == null)
-                {
-                    throw new ArgumentNullException(nameof(Item));
-                }
+                var item = this[index];
+                item._parent = null;
+                base.RemoveItem(index);
 
-                if (Item.Parent != owner)
-                {
-                    if (Item.Parent != null)
-                    {
-                        Item.Parent.Nodes.Remove(Item);
-                    }
-                    Item.parent = owner;
-                    base.InsertItem(Index, Item);
-
-                    var model = owner.FindModel();
-                    if (model != null)
-                    {
-                        model.OnNodeInserted(owner, Index, Item);
-                    }
-                }
+                var model = _owner.FindModel();
+                model?.OnNodeRemoved(_owner, index, item);
             }
 
-            protected override void RemoveItem(int Index)
+            protected override void SetItem(int index, PlaylistTreeNodeBase item)
             {
-                var item = this[Index];
-                item.parent = null;
-                base.RemoveItem(Index);
+                if (item == null)
+                    throw new ArgumentNullException(nameof(item));
 
-                var model = owner.FindModel();
-                if (model != null)
-                    model.OnNodeRemoved(owner, Index, item);
-            }
-
-            protected override void SetItem(int Index, PlaylistTreeNodeBase Item)
-            {
-                if (Item == null)
-                    throw new ArgumentNullException(nameof(Item));
-
-                RemoveAt(Index);
-                InsertItem(Index, Item);
+                RemoveAt(index);
+                InsertItem(index, item);
             }
         }
 
@@ -79,55 +110,37 @@ namespace AIMPPL_Copy.PlaylistTree
 
         #region Properties
 
-        private PlaylistTreeModel model;
-        internal PlaylistTreeModel Model
-        {
-            get { return model; }
-            set { model = value; }
-        }
+        internal PlaylistTreeModel Model { get; set; }
 
-        private NodeCollection nodes;
-        public Collection<PlaylistTreeNodeBase> Nodes
-        {
-            get { return nodes; }
-        }
+        private readonly NodeCollection _nodes;
 
-        private PlaylistTreeNodeBase parent;
+        public Collection<PlaylistTreeNodeBase> Nodes => _nodes;
+
+        private PlaylistTreeNodeBase _parent;
+
         public PlaylistTreeNodeBase Parent
         {
-            get { return parent; }
+            get { return _parent; }
             set
             {
-                if (value != parent)
+                if (value != _parent)
                 {
-                    if (parent != null)
-                        parent.Nodes.Remove(this);
+                    _parent?.Nodes.Remove(this);
 
-                    if (value != null)
-                        value.Nodes.Add(this);
+                    value?.Nodes.Add(this);
                 }
             }
         }
 
-        private string name = "";
-        public string Name
-        {
-            get { return name; }
-            set { name = value; }
-        }
+        public string Name { get; set; } = "";
 
         public int Index
         {
             get
             {
-                if (parent != null)
-                {
-                    return parent.Nodes.IndexOf(this);
-                }
-                else
-                {
-                    return -1;
-                }
+                if (_parent != null)
+                    return _parent.Nodes.IndexOf(this);
+                return -1;
             }
         }
 
@@ -137,13 +150,8 @@ namespace AIMPPL_Copy.PlaylistTree
             {
                 var index = Index;
                 if (index > 0)
-                {
-                    return parent.Nodes[index - 1];
-                }
-                else
-                {
-                    return null;
-                }
+                    return _parent.Nodes[index - 1];
+                return null;
             }
         }
 
@@ -152,32 +160,29 @@ namespace AIMPPL_Copy.PlaylistTree
             get
             {
                 var index = Index;
-                if (index >= 0 && index < parent.Nodes.Count - 1)
-                {
-                    return parent.Nodes[index + 1];
-                }
-                else
-                {
-                    return null;
-                }
+                if (index >= 0 && index < _parent.Nodes.Count - 1)
+                    return _parent.Nodes[index + 1];
+                return null;
             }
         }
 
-        private string text;
+        private string _text;
+
         public virtual string Text
         {
-            get { return text; }
+            get { return _text; }
             set
             {
-                if (text != value)
+                if (_text != value)
                 {
-                    text = value;
+                    _text = value;
                     NotifyModel();
                 }
             }
         }
 
         protected CheckState checkState;
+
         public virtual CheckState CheckState
         {
             get { return checkState; }
@@ -193,10 +198,7 @@ namespace AIMPPL_Copy.PlaylistTree
 
         public bool IsChecked
         {
-            get
-            {
-                return CheckState != CheckState.Unchecked;
-            }
+            get { return CheckState != CheckState.Unchecked; }
             set
             {
                 if (value)
@@ -206,62 +208,8 @@ namespace AIMPPL_Copy.PlaylistTree
             }
         }
 
-        public virtual bool IsLeaf
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public virtual bool IsLeaf => true;
 
         #endregion
-
-        public PlaylistTreeNodeBase() : this(string.Empty)
-        {
-        }
-
-        public PlaylistTreeNodeBase(string Text)
-        {
-            this.text = Text;
-            nodes = new NodeCollection(this);
-        }
-
-        private PlaylistTreeModel FindModel()
-        {
-            var node = this;
-            while (node != null)
-            {
-                if (node.Model != null)
-                {
-                    return node.Model;
-                }
-                node = node.Parent;
-            }
-            return null;
-        }
-
-        protected void NotifyModel()
-        {
-            var model = FindModel();
-            if (model != null && Parent != null)
-            {
-                var path = model.GetPath(Parent);
-                if (path != null)
-                {
-                    var args = new TreeModelEventArgs(path, new int[] { Index }, new object[] { this });
-                    model.OnNodesChanged(args);
-                }
-            }
-        }
-
-        public void RemoveItem(int Index)
-        {
-            Nodes.RemoveAt(Index);
-        }
-
-        public override string ToString()
-        {
-            return Text;
-        }
     }
 }

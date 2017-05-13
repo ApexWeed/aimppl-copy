@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Apex;
@@ -17,32 +12,30 @@ namespace AIMPPL_Copy
 {
     public partial class StatisticsForm : Form
     {
-        new private MainForm Parent;
-        private List<Playlist> Playlists;
-        private LanguageManager LM;
-        private Dictionary<TranslatableLabelFormat, string> translationStrings;
+        private readonly LanguageManager _lm;
+        private readonly MainForm _parent;
+        private readonly List<Playlist> _playlists;
+        private Dictionary<TranslatableLabelFormat, string> _translationStrings;
 
-        public StatisticsForm(LanguageManager LanguageManager, List<Playlist> Playlists, MainForm Parent)
+        public StatisticsForm(LanguageManager languageManager, List<Playlist> playlists, MainForm parent)
         {
             InitializeComponent();
 
-            this.Playlists = Playlists;
-            this.Parent = Parent;
-            this.LM = LanguageManager;
-            LM.AddAllControls(this);
+            _playlists = playlists;
+            _parent = parent;
+            _lm = languageManager;
+            _lm.AddAllControls(this);
         }
 
         private async void StatisticsForm_Load(object sender, EventArgs e)
         {
             // Save the control translation string and set it to calculating.
-            translationStrings = new Dictionary<TranslatableLabelFormat, string>();
+            _translationStrings = new Dictionary<TranslatableLabelFormat, string>();
 
             var bindFlags = BindingFlags.Instance | BindingFlags.Public;
             var searchQueue = new Queue<Control>();
             foreach (Control control in Controls)
-            {
                 searchQueue.Enqueue(control);
-            }
 
             while (searchQueue.Count > 0)
             {
@@ -50,23 +43,19 @@ namespace AIMPPL_Copy
                 if (component is TranslatableLabelFormat)
                 {
                     var label = component as TranslatableLabelFormat;
-                    translationStrings.Add(label, label.TranslationString);
+                    _translationStrings.Add(label, label.TranslationString);
                     label.TranslationString = "STATS.LABEL.CALCULATING";
                 }
                 else
                 {
                     var props = component.GetType().GetProperties(bindFlags);
                     foreach (var prop in props)
-                    {
                         if (prop.Name == "Controls")
                         {
                             var children = (Control.ControlCollection)prop.GetValue(component);
                             foreach (Control child in children)
-                            {
                                 searchQueue.Enqueue(child);
-                            }
                         }
-                    }
                 }
             }
 
@@ -76,162 +65,185 @@ namespace AIMPPL_Copy
             var uniqueSongs = new List<Song>();
             await Task.Run(() =>
             {
-                foreach (var playlist in Playlists)
-                {
+                foreach (var playlist in _playlists)
                     groups.AddRange(playlist.Groups);
-                }
                 uniqueGroups.AddRange(groups.Distinct());
 
                 foreach (var group in groups)
-                {
                     songs.AddRange(group.Songs);
-                }
                 uniqueSongs.AddRange(songs.Distinct());
             });
 
             // Playlists.
-            lblPlaylistsCount.Parameters = new object[] { Playlists.Count };
-            lblPlaylistsCount.TranslationString = translationStrings[lblPlaylistsCount];
+            lblPlaylistsCount.Parameters = new object[] {_playlists.Count};
+            lblPlaylistsCount.TranslationString = _translationStrings[lblPlaylistsCount];
 
             var songCount = 0;
             await Task.Run(() =>
             {
-                foreach (var group in groups)
+                var _lock = new object();
+                Parallel.ForEach(groups, group =>
                 {
-                    songCount += group.Songs.Count;
-                }
+                    var count = group.Songs.Count;
+                    lock (_lock)
+                        songCount += count;
+                });
             });
-            lblPlaylistsSongAverage.Parameters = new object[] { songCount / Playlists.Count };
-            lblPlaylistsSongAverage.TranslationString = translationStrings[lblPlaylistsSongAverage];
+            lblPlaylistsSongAverage.Parameters = new object[] {songCount / _playlists.Count};
+            lblPlaylistsSongAverage.TranslationString = _translationStrings[lblPlaylistsSongAverage];
 
             var totalCoverSize = 0L;
             await Task.Run(() =>
             {
-                foreach (var group in groups)
+                var _lock = new object();
+                Parallel.ForEach(groups, group =>
                 {
-                    totalCoverSize += group.Cover.Size;
-                }
+                    var coverSize = group.Cover.Size;
+                    lock (_lock)
+                        totalCoverSize += coverSize;
+                });
             });
-            lblPlaylistsTotalCovers.Parameters = new object[] { Formatting.FormatBytes(totalCoverSize) };
-            lblPlaylistsTotalCovers.TranslationString = translationStrings[lblPlaylistsTotalCovers];
+            lblPlaylistsTotalCovers.Parameters = new object[] {Formatting.FormatBytes(totalCoverSize)};
+            lblPlaylistsTotalCovers.TranslationString = _translationStrings[lblPlaylistsTotalCovers];
 
-            lblPlaylistsAverageCovers.Parameters = new object[] { Formatting.FormatBytes(totalCoverSize / Playlists.Count) };
-            lblPlaylistsAverageCovers.TranslationString = translationStrings[lblPlaylistsAverageCovers];
+            lblPlaylistsAverageCovers.Parameters = new object[]
+                {Formatting.FormatBytes(totalCoverSize / _playlists.Count)};
+            lblPlaylistsAverageCovers.TranslationString = _translationStrings[lblPlaylistsAverageCovers];
 
             var totalScanSize = 0L;
             await Task.Run(() =>
             {
-                foreach (var group in groups)
+                var _lock = new object();
+                Parallel.ForEach(groups, group =>
                 {
-                    totalScanSize += group.ScanSize;
-                }
+                    var scanSize = group.ScanSize;
+                    lock (_lock)
+                        totalScanSize += scanSize;
+                });
             });
-            lblPlaylistsTotalScans.Parameters = new object[] { Formatting.FormatBytes(totalScanSize) };
-            lblPlaylistsTotalScans.TranslationString = translationStrings[lblPlaylistsTotalScans];
+            lblPlaylistsTotalScans.Parameters = new object[] {Formatting.FormatBytes(totalScanSize)};
+            lblPlaylistsTotalScans.TranslationString = _translationStrings[lblPlaylistsTotalScans];
 
-            lblPlaylistsAverageScans.Parameters = new object[] { Formatting.FormatBytes(totalScanSize / Playlists.Count) };
-            lblPlaylistsAverageScans.TranslationString = translationStrings[lblPlaylistsAverageScans];
+            lblPlaylistsAverageScans.Parameters = new object[]
+                {Formatting.FormatBytes(totalScanSize / _playlists.Count)};
+            lblPlaylistsAverageScans.TranslationString = _translationStrings[lblPlaylistsAverageScans];
 
             // Groups.
-            lblGroupsCount.Parameters = new object[] { groups.Count };
-            lblGroupsCount.TranslationString = translationStrings[lblGroupsCount];
+            lblGroupsCount.Parameters = new object[] {groups.Count};
+            lblGroupsCount.TranslationString = _translationStrings[lblGroupsCount];
 
-            lblGroupsAverageCount.Parameters = new object[] { groups.Count / Playlists.Count };
-            lblGroupsAverageCount.TranslationString = translationStrings[lblGroupsAverageCount];
+            lblGroupsAverageCount.Parameters = new object[] {groups.Count / _playlists.Count};
+            lblGroupsAverageCount.TranslationString = _translationStrings[lblGroupsAverageCount];
 
-            lblGroupsAverageSongs.Parameters = new object[] { songCount / groups.Count };
-            lblGroupsAverageSongs.TranslationString = translationStrings[lblGroupsAverageSongs];
+            lblGroupsAverageSongs.Parameters = new object[] {songCount / groups.Count};
+            lblGroupsAverageSongs.TranslationString = _translationStrings[lblGroupsAverageSongs];
 
-            lblGroupsAverageCovers.Parameters = new object[] { Formatting.FormatBytes(totalCoverSize / groups.Count) };
-            lblGroupsAverageCovers.TranslationString = translationStrings[lblGroupsAverageCovers];
+            lblGroupsAverageCovers.Parameters = new object[] {Formatting.FormatBytes(totalCoverSize / groups.Count)};
+            lblGroupsAverageCovers.TranslationString = _translationStrings[lblGroupsAverageCovers];
 
-            lblGroupsAverageScans.Parameters = new object[] { Formatting.FormatBytes(totalScanSize / groups.Count) };
-            lblGroupsAverageScans.TranslationString = translationStrings[lblGroupsAverageScans];
+            lblGroupsAverageScans.Parameters = new object[] {Formatting.FormatBytes(totalScanSize / groups.Count)};
+            lblGroupsAverageScans.TranslationString = _translationStrings[lblGroupsAverageScans];
 
             // Unique groups.
-            lblUniqueGroupsCount.Parameters = new object[] { uniqueGroups.Count };
-            lblUniqueGroupsCount.TranslationString = translationStrings[lblUniqueGroupsCount];
+            lblUniqueGroupsCount.Parameters = new object[] {uniqueGroups.Count};
+            lblUniqueGroupsCount.TranslationString = _translationStrings[lblUniqueGroupsCount];
 
-            lblUniqueGroupsAverageCount.Parameters = new object[] { uniqueGroups.Count / Playlists.Count };
-            lblUniqueGroupsAverageCount.TranslationString = translationStrings[lblUniqueGroupsAverageCount];
+            lblUniqueGroupsAverageCount.Parameters = new object[] {uniqueGroups.Count / _playlists.Count};
+            lblUniqueGroupsAverageCount.TranslationString = _translationStrings[lblUniqueGroupsAverageCount];
 
-            lblUniqueGroupsAverageSongs.Parameters = new object[] { songCount / uniqueGroups.Count };
-            lblUniqueGroupsAverageSongs.TranslationString = translationStrings[lblGroupsAverageSongs];
+            lblUniqueGroupsAverageSongs.Parameters = new object[] {songCount / uniqueGroups.Count};
+            lblUniqueGroupsAverageSongs.TranslationString = _translationStrings[lblGroupsAverageSongs];
 
-            lblUniqueGroupsAverageCovers.Parameters = new object[] { Formatting.FormatBytes(totalCoverSize / uniqueGroups.Count) };
-            lblUniqueGroupsAverageCovers.TranslationString = translationStrings[lblUniqueGroupsAverageCovers];
+            lblUniqueGroupsAverageCovers.Parameters = new object[]
+                {Formatting.FormatBytes(totalCoverSize / uniqueGroups.Count)};
+            lblUniqueGroupsAverageCovers.TranslationString = _translationStrings[lblUniqueGroupsAverageCovers];
 
-            lblUniqueGroupsAverageScans.Parameters = new object[] { Formatting.FormatBytes(totalScanSize / uniqueGroups.Count) };
-            lblUniqueGroupsAverageScans.TranslationString = translationStrings[lblUniqueGroupsAverageScans];
+            lblUniqueGroupsAverageScans.Parameters = new object[]
+                {Formatting.FormatBytes(totalScanSize / uniqueGroups.Count)};
+            lblUniqueGroupsAverageScans.TranslationString = _translationStrings[lblUniqueGroupsAverageScans];
 
             // Songs.
-            lblSongsCount.Parameters = new object[] { songs.Count };
-            lblSongsCount.TranslationString = translationStrings[lblSongsCount];
+            lblSongsCount.Parameters = new object[] {songs.Count};
+            lblSongsCount.TranslationString = _translationStrings[lblSongsCount];
 
             var totalDuration = 0;
             await Task.Run(() =>
             {
-                foreach (var song in songs)
+                var _lock = new object();
+                Parallel.ForEach(songs, song =>
                 {
-                    totalDuration += song.Duration;
-                }
+                    var duration = song.Duration;
+                    lock (_lock)
+                        totalDuration += duration;
+                });
             });
-            lblSongsTotalDuration.Parameters = new object[] { TimeSpan.FromMilliseconds(totalDuration) };
-            lblSongsTotalDuration.TranslationString = translationStrings[lblSongsTotalDuration];
+            lblSongsTotalDuration.Parameters = new object[] {TimeSpan.FromMilliseconds(totalDuration)};
+            lblSongsTotalDuration.TranslationString = _translationStrings[lblSongsTotalDuration];
 
-            lblSongsAverageDuration.Parameters = new object[] { TimeSpan.FromMilliseconds(totalDuration / songs.Count) };
-            lblSongsAverageDuration.TranslationString = translationStrings[lblSongsAverageDuration];
+            lblSongsAverageDuration.Parameters = new object[] {TimeSpan.FromMilliseconds(totalDuration / songs.Count)};
+            lblSongsAverageDuration.TranslationString = _translationStrings[lblSongsAverageDuration];
 
             var totalSongSize = 0L;
             await Task.Run(() =>
             {
-                foreach (var song in songs)
+                var _lock = new object();
+                Parallel.ForEach(songs, song =>
                 {
-                    totalSongSize += song.Size;
-                }
+                    var size = song.Size;
+                    lock (_lock)
+                        totalSongSize += size;
+                });
             });
-            lblSongsTotalSize.Parameters = new object[] { Formatting.FormatBytes(totalSongSize) };
-            lblSongsTotalSize.TranslationString = translationStrings[lblSongsTotalSize];
+            lblSongsTotalSize.Parameters = new object[] {Formatting.FormatBytes(totalSongSize)};
+            lblSongsTotalSize.TranslationString = _translationStrings[lblSongsTotalSize];
 
-            lblSongsAverageSize.Parameters = new object[] { Formatting.FormatBytes(totalSongSize / songs.Count) };
-            lblSongsAverageSize.TranslationString = translationStrings[lblSongsAverageSize];
+            lblSongsAverageSize.Parameters = new object[] {Formatting.FormatBytes(totalSongSize / songs.Count)};
+            lblSongsAverageSize.TranslationString = _translationStrings[lblSongsAverageSize];
 
             // Unique Songs
-            lblUniqueSongsCount.Parameters = new object[] { uniqueSongs.Count };
-            lblUniqueSongsCount.TranslationString = translationStrings[lblUniqueSongsCount];
+            lblUniqueSongsCount.Parameters = new object[] {uniqueSongs.Count};
+            lblUniqueSongsCount.TranslationString = _translationStrings[lblUniqueSongsCount];
 
             var totalUniqueDuration = 0;
             await Task.Run(() =>
             {
-                foreach (var song in uniqueSongs)
+                var _lock = new object();
+                Parallel.ForEach(uniqueSongs, song =>
                 {
-                    totalUniqueDuration += song.Duration;
-                }
+                    var duration = song.Duration;
+                    lock (_lock)
+                        totalUniqueDuration += duration;
+                });
             });
-            lblUniqueSongsTotalDuration.Parameters = new object[] { TimeSpan.FromMilliseconds(totalUniqueDuration) };
-            lblUniqueSongsTotalDuration.TranslationString = translationStrings[lblUniqueSongsTotalDuration];
+            lblUniqueSongsTotalDuration.Parameters = new object[] {TimeSpan.FromMilliseconds(totalUniqueDuration)};
+            lblUniqueSongsTotalDuration.TranslationString = _translationStrings[lblUniqueSongsTotalDuration];
 
-            lblUniqueSongsAverageDuration.Parameters = new object[] { TimeSpan.FromMilliseconds(totalUniqueDuration / uniqueSongs.Count) };
-            lblUniqueSongsAverageDuration.TranslationString = translationStrings[lblUniqueSongsAverageDuration];
+            lblUniqueSongsAverageDuration.Parameters = new object[]
+                {TimeSpan.FromMilliseconds(totalUniqueDuration / uniqueSongs.Count)};
+            lblUniqueSongsAverageDuration.TranslationString = _translationStrings[lblUniqueSongsAverageDuration];
 
             var totalUniqueSize = 0L;
             await Task.Run(() =>
             {
-                foreach (var song in uniqueSongs)
+                var _lock = new object();
+                Parallel.ForEach(uniqueSongs, song =>
                 {
-                    totalUniqueSize += song.Size;
-                }
+                    var size = song.Size;
+                    lock (_lock)
+                        totalUniqueSize += size;
+                });
             });
-            lblUniqueSongsTotalSize.Parameters = new object[] { Formatting.FormatBytes(totalUniqueSize) };
-            lblUniqueSongsTotalSize.TranslationString = translationStrings[lblUniqueSongsTotalSize];
+            lblUniqueSongsTotalSize.Parameters = new object[] {Formatting.FormatBytes(totalUniqueSize)};
+            lblUniqueSongsTotalSize.TranslationString = _translationStrings[lblUniqueSongsTotalSize];
 
-            lblUniqueSongsAverageSize.Parameters = new object[] { Formatting.FormatBytes(totalUniqueSize / uniqueSongs.Count) };
-            lblUniqueSongsAverageSize.TranslationString = translationStrings[lblUniqueSongsAverageSize];
+            lblUniqueSongsAverageSize.Parameters = new object[]
+                {Formatting.FormatBytes(totalUniqueSize / uniqueSongs.Count)};
+            lblUniqueSongsAverageSize.TranslationString = _translationStrings[lblUniqueSongsAverageSize];
         }
 
         private void StatisticsForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Parent.ChildClosed(this);
+            _parent.ChildClosed(this);
         }
     }
 }

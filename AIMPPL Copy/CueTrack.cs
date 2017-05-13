@@ -1,34 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace AIMPPL_Copy
 {
     public class CueTrack
     {
-        public int ID;
-        public string Title;
+        public int Id;
+        public Dictionary<string, string> Indexes;
         public string Performer;
         public string SongWriter;
-        public Dictionary<string, string> Indexes;
+        public string Title;
 
         public CueTrack()
         {
             Indexes = new Dictionary<string, string>();
         }
 
-        public override string ToString()
-        {
-            if (string.IsNullOrWhiteSpace(Performer))
-            {
-                return Title;
-            }
-            else
-            {
-                return $"{Performer} - {Title}";
-            }
-        }
+        public override string ToString() => string.IsNullOrWhiteSpace(Performer) ? Title : $"{Performer} - {Title}";
+
     }
 }

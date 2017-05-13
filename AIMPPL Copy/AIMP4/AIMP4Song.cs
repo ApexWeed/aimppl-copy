@@ -1,143 +1,148 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 
 namespace AIMPPL_Copy.AIMP4
 {
-    public class AIMP4Song : Song
+    public class Aimp4Song : Song
     {
-        private string[] parts;
-
-        public override string Path
-        {
-            get { return parts[0]; }
-            set { parts[0] = value; }
-        }
-        public override string Title
-        {
-            get { return parts[1]; }
-            set { parts[1] = value; }
-        }
-        public override string Artist
-        {
-            get { return parts[2]; }
-            set { parts[2] = value; }
-        }
-        public override string Album
-        {
-            get { return parts[3]; }
-            set { parts[3] = value; }
-        }
-        public override string AlbumArtist
-        {
-            get { return parts[4]; }
-            set { parts[4] = value; }
-        }
-        public override string Genre
-        {
-            get { return parts[5]; }
-            set { parts[5] = value; }
-        }
-        public override string Year
-        {
-            get { return parts[6]; }
-            set { parts[6] = value; }
-        }
-        public override int TrackNo
-        {
-            get { return parts[7].Length > 0 ? int.Parse(parts[7]) : -1; }
-            set { parts[7] = value.ToString(); }
-        }
-        public override int DiskNo
-        {
-            get { return parts[8].Length > 0 ? int.Parse(parts[8]) : -1; }
-            set { parts[8] = value.ToString(); }
-        }
-        public override string Composer
-        {
-            get { return parts[9]; }
-            set { parts[9] = value; }
-        }
-        public override string Publisher
-        {
-            get { return parts[10]; }
-            set { parts[10] = value; }
-        }
-        public override int Bitrate
-        {
-            get { return int.Parse(parts[11]); }
-            set { parts[11] = value.ToString(); }
-        }
-        public override int Channels
-        {
-            get { return int.Parse(parts[12]); }
-            set { parts[12] = value.ToString(); }
-        }
-        public override int SampleRate
-        {
-            get { return int.Parse(parts[13]); }
-            set { parts[13] = value.ToString(); }
-        }
-        public override int Duration
-        {
-            get { return int.Parse(parts[14]); }
-            set { parts[14] = value.ToString(); }
-        }
-        public override int Size
-        {
-            get { return int.Parse(parts[15]); }
-            set { parts[15] = value.ToString(); }
-        }
-        public override int BPM
-        {
-            get { return int.Parse(parts[16]); }
-            set { parts[16] = value.ToString(); }
-        }
-        public override string IsActive
-        {
-            get { return parts[17]; }
-            set { parts[17] = value; }
-        }
-        public override int Index
-        {
-            get { return int.Parse(parts[18]); }
-            set { parts[18] = value.ToString(); }
-        }
-        public override string PluginReserved
-        {
-            get { return parts[18]; }
-            set { parts[18] = value; }
-        }
-
-        public override string PlaylistFormat
-        {
-            get
-            {
-                return $"{string.Join("|", parts)}";
-            }
-        }
+        private readonly string[] _parts;
 
         // 0    1     2      3     4           5     6    7       8      9        10        11            12       13             14           15          16  17       18    19
         // Path|Title|Artist|Album|AlbumArtist|Genre|Year|TrackNo|DiskNo|Composer|Publisher|Bitrate(Kbps)|Channels|SampleRate(Hz)|Duration(MS)|Size(Bytes)|BPM|IsActive|Index|PluginReserved|
-        public AIMP4Song(string Definition)
+        public Aimp4Song(string definition)
         {
-            parts = Definition.Split('|');
+            _parts = definition.Split('|');
         }
 
-        public AIMP4Song(Song OldSong)
+        public Aimp4Song(Song oldSong)
         {
-            parts = new string[21];
+            _parts = new string[21];
 
-            foreach (var propertyInfo in typeof(Song).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance))
-            {
+            foreach (var propertyInfo in typeof(Song).GetProperties(BindingFlags.Public | BindingFlags.Instance))
                 // Skip unsettable properties (read only macros like directory and group).
                 if (propertyInfo.GetSetMethod() != null)
-                {
-                    propertyInfo.SetValue(this, propertyInfo.GetValue(OldSong));
-                }
-            }
+                    propertyInfo.SetValue(this, propertyInfo.GetValue(oldSong));
         }
+
+        public override string Path
+        {
+            get => _parts[0];
+            set => _parts[0] = value;
+        }
+
+        public override string Title
+        {
+            get => _parts[1];
+            set => _parts[1] = value;
+        }
+
+        public override string Artist
+        {
+            get => _parts[2];
+            set => _parts[2] = value;
+        }
+
+        public override string Album
+        {
+            get => _parts[3];
+            set => _parts[3] = value;
+        }
+
+        public override string AlbumArtist
+        {
+            get => _parts[4];
+            set => _parts[4] = value;
+        }
+
+        public override string Genre
+        {
+            get => _parts[5];
+            set => _parts[5] = value;
+        }
+
+        public override string Year
+        {
+            get => _parts[6];
+            set => _parts[6] = value;
+        }
+
+        public override int TrackNo
+        {
+            get => _parts[7].Length > 0 ? int.Parse(_parts[7]) : -1;
+            set => _parts[7] = value.ToString();
+        }
+
+        public override int DiskNo
+        {
+            get => _parts[8].Length > 0 ? int.Parse(_parts[8]) : -1;
+            set => _parts[8] = value.ToString();
+        }
+
+        public override string Composer
+        {
+            get => _parts[9];
+            set => _parts[9] = value;
+        }
+
+        public override string Publisher
+        {
+            get => _parts[10];
+            set => _parts[10] = value;
+        }
+
+        public override int Bitrate
+        {
+            get => int.Parse(_parts[11]);
+            set => _parts[11] = value.ToString();
+        }
+
+        public override int Channels
+        {
+            get => int.Parse(_parts[12]);
+            set => _parts[12] = value.ToString();
+        }
+
+        public override int SampleRate
+        {
+            get => int.Parse(_parts[13]);
+            set => _parts[13] = value.ToString();
+        }
+
+        public override int Duration
+        {
+            get => int.Parse(_parts[14]);
+            set => _parts[14] = value.ToString();
+        }
+
+        public override int Size
+        {
+            get => int.Parse(_parts[15]);
+            set => _parts[15] = value.ToString();
+        }
+
+        public override int Bpm
+        {
+            get => int.Parse(_parts[16]);
+            set => _parts[16] = value.ToString();
+        }
+
+        public override string IsActive
+        {
+            get => _parts[17];
+            set => _parts[17] = value;
+        }
+
+        public override int Index
+        {
+            get => int.Parse(_parts[18]);
+            set => _parts[18] = value.ToString();
+        }
+
+        public override string PluginReserved
+        {
+            get => _parts[18];
+            set => _parts[18] = value;
+        }
+
+        public override string PlaylistFormat => $"{string.Join("|", _parts)}";
     }
 }

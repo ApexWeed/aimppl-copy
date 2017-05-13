@@ -1,27 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.IO;
 
 namespace AIMPPL_Copy
 {
     public class CueSheet
     {
-        public string Filename;
         public string Album;
+        public string Filename;
         public List<CueTrack> Tracks;
 
-        public CueSheet(string Filename)
+        public CueSheet(string filename)
         {
-            this.Filename = Filename;
-            Album = Path.GetFileNameWithoutExtension(Filename);
+            Filename = filename;
+            Album = Path.GetFileNameWithoutExtension(filename);
             Tracks = new List<CueTrack>();
 
-            if (File.Exists(Filename))
-            {
-                using (var r = new StreamReader(Filename))
+            if (File.Exists(filename))
+                using (var r = new StreamReader(filename))
                 {
                     var line = string.Empty;
                     var pos = 0L;
@@ -38,7 +33,7 @@ namespace AIMPPL_Copy
                             var index = line.Split(' ')[3];
                             var track = new CueTrack
                             {
-                                ID = int.Parse(index)
+                                Id = int.Parse(index)
                             };
 
                             line = r.ReadLine();
@@ -48,25 +43,25 @@ namespace AIMPPL_Copy
                                 switch (parts[4])
                                 {
                                     case "TITLE":
-                                        {
-                                            track.Title = line.Substring(11, line.Length - 12);
-                                            break;
-                                        }
+                                    {
+                                        track.Title = line.Substring(11, line.Length - 12);
+                                        break;
+                                    }
                                     case "PERFORMER":
-                                        {
-                                            track.Performer = line.Substring(15, line.Length - 16);
-                                            break;
-                                        }
+                                    {
+                                        track.Performer = line.Substring(15, line.Length - 16);
+                                        break;
+                                    }
                                     case "SONGWRITER":
-                                        {
-                                            track.SongWriter = line.Substring(16, line.Length - 17);
-                                            break;
-                                        }
+                                    {
+                                        track.SongWriter = line.Substring(16, line.Length - 17);
+                                        break;
+                                    }
                                     case "INDEX":
-                                        {
-                                            track.Indexes.Add(parts[5], parts[6]);
-                                            break;
-                                        }
+                                    {
+                                        track.Indexes.Add(parts[5], parts[6]);
+                                        break;
+                                    }
                                 }
 
                                 pos = Util.GetActualPosition(r);
@@ -79,7 +74,6 @@ namespace AIMPPL_Copy
                         }
                     }
                 }
-            }
         }
     }
 }

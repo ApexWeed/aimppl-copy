@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AIMPPL_Copy
 {
@@ -13,127 +9,136 @@ namespace AIMPPL_Copy
             get { return ""; }
             set { }
         }
+
         public virtual string IsActive
         {
             get { return "1"; }
             set { }
         }
+
         public virtual string Artist
         {
             get { return ""; }
             set { }
         }
+
         public virtual string Album
         {
             get { return ""; }
             set { }
         }
+
         public virtual string AlbumArtist
         {
             get { return ""; }
             set { }
         }
+
         public virtual string Title
         {
             get { return ""; }
             set { }
         }
+
         public virtual string Genre
         {
             get { return ""; }
             set { }
         }
+
         public virtual string Year
         {
             get { return ""; }
             set { }
         }
+
         public virtual int Duration
         {
             get { return 0; }
             set { }
         }
+
         public virtual int Size
         {
             get { return 0; }
             set { }
         }
-        public virtual int BPM
+
+        public virtual int Bpm
         {
             get { return 0; }
             set { }
         }
+
         public virtual int TrackNo
         {
             get { return 1; }
             set { }
         }
+
         public virtual int DiskNo
         {
             get { return 1; }
             set { }
         }
+
         public virtual string Composer
         {
             get { return ""; }
             set { }
         }
+
         public virtual string Publisher
         {
             get { return ""; }
             set { }
         }
+
         public virtual int SampleRate
         {
             get { return 44100; }
             set { }
         }
+
         public virtual int Bitrate
         {
             get { return 0; }
             set { }
         }
+
         public virtual int Channels
         {
             get { return 2; }
             set { }
         }
+
         public virtual int Index
         {
             get { return 0; }
             set { }
         }
+
         public virtual int StreamSize
         {
             get { return 0; }
             set { }
         }
+
         public virtual string PluginReserved
         {
             get { return ""; }
             set { }
         }
 
-        public virtual string PlaylistFormat
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public virtual string PlaylistFormat => throw new NotImplementedException();
 
         public virtual string Directory
         {
             get
             {
                 if (Path.LastIndexOf(':') > 1)
-                {
                     return Path.Substring(0, Path.LastIndexOf(':'));
-                }
-                else
-                {
-                    return System.IO.Path.GetDirectoryName(Path);
-                }
+                return System.IO.Path.GetDirectoryName(Path);
             }
         }
 
@@ -144,30 +149,26 @@ namespace AIMPPL_Copy
                 var directory = Directory;
                 var lastIndex = directory.LastIndexOf('\\');
                 if (lastIndex == -1)
-                {
                     lastIndex = directory.LastIndexOf('/');
-                }
                 return directory.Substring(lastIndex + 1);
             }
+        }
+
+        public bool Equals(Song other)
+        {
+            if (ReferenceEquals(other, null))
+                return false;
+            if (ReferenceEquals(this, other))
+                return true;
+            return Path == other.Path;
         }
 
         public override string ToString()
         {
             if (string.IsNullOrWhiteSpace(Title))
-            {
                 return System.IO.Path.GetFileNameWithoutExtension(Path);
-            }
-            else
-            {
-                if (string.IsNullOrWhiteSpace(Artist))
-                {
-                    return Title;
-                }
-                else
-                {
-                    return $"{Artist} - {Title}";
-                }
-            }
+
+            return string.IsNullOrWhiteSpace(Artist) ? Title : $"{Artist} - {Title}";
         }
 
         public override int GetHashCode()
@@ -178,33 +179,10 @@ namespace AIMPPL_Copy
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(obj, null))
-            {
                 return false;
-            }
-            else if (!(obj is Song))
-            {
+            if (!(obj is Song))
                 return false;
-            }
-            else
-            {
-                return this.Equals(obj as Song);
-            }
-        }
-
-        public bool Equals(Song other)
-        {
-            if (ReferenceEquals(other, null))
-            {
-                return false;
-            }
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-            else
-            {
-                return Path == other.Path;
-            }
+            return Equals(obj as Song);
         }
 
         public static bool operator ==(Song a, Song b)

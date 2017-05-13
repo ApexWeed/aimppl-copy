@@ -3,61 +3,47 @@ using System.IO;
 
 namespace AIMPPL_Copy.AIMP4
 {
-    public class AIMP4Group : Group
+    public class Aimp4Group : Group
     {
-        private string path;
-        public override string Path
-        {
-            get { return path; }
-            set { path = value; }
-        }
-
-        public override string PlaylistFormat
-        {
-            get
-            {
-                return $"-{Path}";
-            }
-        }
+        private string _path;
 
         // -Path
-        public AIMP4Group(StreamReader Reader)
+        public Aimp4Group(StreamReader reader)
         {
-            Songs = new List<Song>();
-
-            var line = Reader.ReadLine();
+            var line = reader.ReadLine();
             if (string.IsNullOrWhiteSpace(line))
-            {
                 return;
-            }
             if (line.StartsWith("-"))
-            {
-                path = line.Substring(1);
-            }
+                _path = line.Substring(1);
 
             do
             {
-                var pos = Util.GetActualPosition(Reader);
-                line = Reader.ReadLine();
-                
+                var pos = Util.GetActualPosition(reader);
+                line = reader.ReadLine();
+
                 if (line.StartsWith("-"))
                 {
                     // Read past the end of the group, rewind stream and stop.
-                    Util.SetActualPosition(Reader, pos);
+                    Util.SetActualPosition(reader, pos);
                     break;
                 }
-                else
-                {
-                    var song = new AIMP4Song(line);
-                    Songs.Add(song);
-                }
-            } while (!Reader.EndOfStream);
+                var song = new Aimp4Song(line);
+                Songs.Add(song);
+            } while (!reader.EndOfStream);
         }
 
-        public AIMP4Group(string Path, List<Song> Songs)
+        public Aimp4Group(string path, List<Song> songs)
         {
-            this.Path = Path;
-            this.Songs = Songs;
+            this.Path = path;
+            this.songs = songs;
         }
+
+        public override string Path
+        {
+            get => _path;
+            set => _path = value;
+        }
+
+        public override string PlaylistFormat => $"-{Path}";
     }
 }

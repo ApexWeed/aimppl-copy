@@ -1,47 +1,35 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Windows.Forms;
-using Aga.Controls.Tree;
-
-namespace AIMPPL_Copy.PlaylistTree
+﻿namespace AIMPPL_Copy.PlaylistTree
 {
     public class PlaylistNode : PlaylistTreeNodeBase
     {
-        private Playlist playlist;
+        private Playlist _playlist;
+
+        public PlaylistNode(Playlist playlist) : base(playlist.Name)
+        {
+            _playlist = playlist;
+        }
+
         public Playlist Playlist
         {
-            get { return playlist; }
+            get => _playlist;
             set
             {
-                playlist = value;
+                _playlist = value;
                 Text = value.Name;
             }
         }
 
-        public override bool IsLeaf
-        {
-            get
-            {
-                return false;
-            }
-        }
-
-        public PlaylistNode(Playlist Playlist) : base(Playlist.Name)
-        {
-            playlist = Playlist;
-        }
+        public override bool IsLeaf => false;
 
         public void CheckChildCheckState()
         {
             var allChecked = true;
             foreach (var song in Nodes)
-            {
                 if (!song.IsChecked)
                 {
                     allChecked = false;
                     break;
                 }
-            }
 
             IsChecked = allChecked;
         }

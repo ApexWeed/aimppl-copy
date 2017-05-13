@@ -1,26 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
+﻿using System.IO;
 
 namespace AIMPPL_Copy
 {
     public class FormatChange
     {
-        public Song Song;
         public string NewExtension;
+        public Song Song;
 
-        public FormatChange(Song Song, string Extension)
+        public FormatChange(Song song, string extension)
         {
-            this.Song = Song;
-            this.NewExtension = Extension;
+            Song = song;
+            NewExtension = extension;
         }
 
-        public override string ToString()
-        {
-            return $"{Song.ToString()} ({Path.GetExtension(Song.Path).Substring(1)} -> {NewExtension})";
-        }
+        public override string ToString() => $"{Song} ({Path.GetExtension(Song.Path).Substring(1)} -> {NewExtension})";
     }
 }

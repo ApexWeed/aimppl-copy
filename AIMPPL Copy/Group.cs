@@ -1,17 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Linq;
 
 namespace AIMPPL_Copy
 {
     public class Group : IEquatable<Group>
     {
+        protected Cover cover;
+
+        protected List<Scan> scans;
+        protected List<Song> songs;
+
         public virtual string Path
         {
             get { return ""; }
             set { }
         }
-        public List<Song> Songs;
 
         public string Name
         {
@@ -19,149 +23,51 @@ namespace AIMPPL_Copy
             {
                 var lastIndex = Path.LastIndexOf('\\');
                 if (lastIndex == -1)
-                {
                     lastIndex = Path.LastIndexOf('/');
-                }
                 return Path.Substring(lastIndex + 1);
             }
         }
 
-        protected Cover cover;
-        public Cover Cover
-        {
-            get
-            {
-                if (cover == null)
-                {
-                    cover = new Cover(Util.FindCover(Path));
-                }
-                return cover;
-            }
-        }
+        public Cover Cover => cover ?? (cover = new Cover(Util.FindCover(Path)));
 
-        protected List<Scan> scans;
-        public List<Scan> Scans
-        {
-            get
-            {
-                if (scans == null)
-                {
-                    scans = Util.FindScans(Path);
-                }
-                return scans;
-            }
-        }
+        public List<Scan> Scans => scans ?? (scans = Util.FindScans(Path));
 
-        public long ScanSize
-        {
-            get
-            {
-                var size = 0L;
-                foreach (var scan in Scans)
-                {
-                    size += scan.Size;
-                }
-                return size;
-            }
-        }
+        public List<Song> Songs => songs ?? (songs = new List<Song>());
 
-        public long Size
-        {
-            get
-            {
-                var size = 0L;
-                foreach (var song in Songs)
-                {
-                    size += song.Size;
-                }
-                return size;
-            }
-        }
+        public long ScanSize => Scans.Sum(scan => scan.Size);
 
-        public long Duration
-        {
-            get
-            {
-                var duration = 0L;
-                foreach (var song in Songs)
-                {
-                    duration += song.Duration;
-                }
-                return duration;
-            }
-        }
+        public long Size => Songs.Sum(song => song.Size);
 
-        public virtual string PlaylistFormat
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public long Duration => Songs.Sum(song => song.Duration);
 
-        public override string ToString()
-        {
-            return Name;
-        }
-
-        public override int GetHashCode()
-        {
-            var code = Path.GetHashCode();
-            
-            foreach (var song in Songs)
-            {
-                code ^= song.GetHashCode();
-            }
-
-            return code;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(obj, null))
-            {
-                return false;
-            }
-            else if (!(obj is Group))
-            {
-                return false;
-            }
-            else
-            {
-                return this.Equals(obj as Group);
-            }
-        }
+        public virtual string PlaylistFormat => throw new NotImplementedException();
 
         public bool Equals(Group other)
         {
             if (ReferenceEquals(other, null))
-            {
                 return false;
-            }
-            else if (ReferenceEquals(this, other))
-            {
+            if (ReferenceEquals(this, other))
                 return true;
-            }
-            else
-            {
-                if (Path == other.Path)
+            if (Path == other.Path)
+                if (Songs.Count == other.Songs.Count)
                 {
-                    if (Songs.Count == other.Songs.Count)
-                    {
-                        foreach (var song in Songs)
-                        {
-                            if (!other.Songs.Contains(song))
-                            {
-                                return false;
-                            }
-                        }
-
-                        return true;
-                    }
+                    return Songs.All(song => other.Songs.Contains(song));
                 }
 
+            return false;
+        }
+
+        public override string ToString() => Name;
+
+        public override int GetHashCode() => Songs.Aggregate(Path.GetHashCode(), (current, song) => current ^ song.GetHashCode());
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(obj, null))
                 return false;
-            }
+            if (!(obj is Group))
+                return false;
+            return Equals(obj as Group);
         }
 
         public static bool operator ==(Group a, Group b)

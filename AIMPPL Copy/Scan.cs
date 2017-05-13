@@ -4,22 +4,20 @@ namespace AIMPPL_Copy
 {
     public class Scan
     {
-        public string Path;
         public string Directory;
+        public string Path;
         public long Size;
 
-        public Scan(string Path)
+        public Scan(string path)
         {
-            this.Path = Path;
-            Directory = System.IO.Path.GetDirectoryName(Path);
+            Path = path;
+            Directory = System.IO.Path.GetDirectoryName(path);
             var lastIndex = Directory.LastIndexOf('\\');
             if (lastIndex == -1)
-            {
                 lastIndex = Directory.LastIndexOf('/');
-            }
             Directory = Directory.Substring(lastIndex + 1);
 
-            Size = Path == null ? 0 : new FileInfo(Path).Length;
+            Size = path == null ? 0 : new FileInfo(path).Length;
         }
     }
 }

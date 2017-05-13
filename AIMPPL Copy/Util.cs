@@ -2,15 +2,20 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using Apex;
+using TagLib;
+using File = System.IO.File;
 
 namespace AIMPPL_Copy
 {
     public static class Util
     {
-        private static Dictionary<string, bool> FileExistenceCache;
-        private static HashSet<string> FolderScanCache;
-        private static Dictionary<string, CueSheet> CueSheetCache;
-        private static string[] MusicExtensions = new string[]
+        private static Dictionary<string, bool> _fileExistenceCache;
+        private static HashSet<string> _folderScanCache;
+        private static Dictionary<string, CueSheet> _cueSheetCache;
+
+        private static readonly string[] MusicExtensions =
         {
             "flac",
             "mp3",
@@ -19,14 +24,16 @@ namespace AIMPPL_Copy
             "ape",
             "wav",
             "ogg",
-            "m4a",
+            "m4a"
         };
-        private static Dictionary<string, TagLib.Tag> TagCache;
+
+        private static Dictionary<string, Tag> _tagCache;
 
         // From https://stackoverflow.com/a/17457085
         public static long GetActualPosition(StreamReader reader)
         {
-            var flags = System.Reflection.BindingFlags.DeclaredOnly | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.GetField;
+            var flags = BindingFlags.DeclaredOnly | BindingFlags.NonPublic | BindingFlags.Instance |
+                        BindingFlags.GetField;
 
             // The current buffer of decoded characters
             var charBuffer = (char[])reader.GetType().InvokeMember("charBuffer", flags, null, reader, null);
@@ -49,16 +56,17 @@ namespace AIMPPL_Copy
             // For variable-byte encodings, deal with partial chars at the end of the buffer
             var numFragments = 0;
             if (byteLen > 0 && !reader.CurrentEncoding.IsSingleByte)
-            {
                 if (reader.CurrentEncoding.CodePage == 65001) // UTF-8
                 {
                     byte byteCountMask = 0;
-                    while ((byteBuffer[byteLen - numFragments - 1] >> 6) == 2) // if the byte is "10xx xxxx", it's a continuation-byte
+                    while (byteBuffer[byteLen - numFragments - 1] >> 6 == 2
+                    ) // if the byte is "10xx xxxx", it's a continuation-byte
                         byteCountMask |= (byte)(1 << ++numFragments); // count bytes & build the "complete char" mask
-                    if ((byteBuffer[byteLen - numFragments - 1] >> 6) == 3) // if the byte is "11xx xxxx", it starts a multi-byte char.
+                    if (byteBuffer[byteLen - numFragments - 1] >> 6 == 3
+                    ) // if the byte is "11xx xxxx", it starts a multi-byte char.
                         byteCountMask |= (byte)(1 << ++numFragments); // count bytes & build the "complete char" mask
-                                                                      // see if we found as many bytes as the leading-byte says to expect
-                    if (numFragments > 1 && ((byteBuffer[byteLen - numFragments] >> 7 - numFragments) == byteCountMask))
+                    // see if we found as many bytes as the leading-byte says to expect
+                    if (numFragments > 1 && byteBuffer[byteLen - numFragments] >> (7 - numFragments) == byteCountMask)
                         numFragments = 0; // no partial-char in the byte-buffer to account for
                 }
                 else if (reader.CurrentEncoding.CodePage == 1200) // UTF-16LE
@@ -71,252 +79,192 @@ namespace AIMPPL_Copy
                     if (byteBuffer[byteLen - 2] >= 0xd8) // high-surrogate
                         numFragments = 2; // account for the partial character
                 }
-            }
             return reader.BaseStream.Position - numBytesLeft - numFragments;
         }
 
-        public static void SetActualPosition(StreamReader Reader, long Offset)
+        public static void SetActualPosition(StreamReader reader, long offset)
         {
-            Reader.BaseStream.Seek(Offset, SeekOrigin.Begin);
-            Reader.DiscardBufferedData();
+            reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+            reader.DiscardBufferedData();
         }
 
         /// <summary>
-        /// Attempts to find the cover art for the specified folder. Tries common file names then resorts to any image in the folder.
+        ///     Attempts to find the cover art for the specified folder. Tries common file names then resorts to any image in the
+        ///     folder.
         /// </summary>
-        /// <param name="Path">Path to search.</param>
+        /// <param name="path">Path to search.</param>
         /// <returns>The path to the cover or null if none are found.</returns>
-        public static string FindCover(string Path)
+        public static string FindCover(string path)
         {
             // Account for non existant folders.
-            if (!Directory.Exists(Path))
-            {
+            if (!Directory.Exists(path))
                 return null;
-            }
 
-            var searchFiles = new string[] { "cover", "jacket", "folder" };
-            var searchExtensions = new string[] { "jpg", "png", "jpeg", "bmp" };
-            var files = Directory.GetFiles(Path);
+            var searchFiles = new[] {"cover", "jacket", "folder"};
+            var searchExtensions = new[] {"jpg", "png", "jpeg", "bmp"};
+            var files = Directory.GetFiles(path);
 
             // Try common cover files.
             foreach (var file in searchFiles)
-            {
                 foreach (var ext in searchExtensions)
-                {
-                    if (files.Contains(System.IO.Path.Combine(Path, $"{file}.{ext}")))
-                    {
-                        return System.IO.Path.Combine(Path, $"{file}.{ext}");
-                    }
-                }
-            }
+                    if (files.Contains(Path.Combine(path, $"{file}.{ext}")))
+                        return Path.Combine(path, $"{file}.{ext}");
 
             // Try to find some sort of image.
             foreach (var file in files)
-            {
-                foreach (var ext in searchExtensions)
-                {
-                    if (file.EndsWith(ext))
-                    {
-                        return file;
-                    }
-                }
-            }
+                if (searchExtensions.Any(ext => file.EndsWith(ext)))
+                    return file;
 
             // Give up.
             return null;
         }
 
         /// <summary>
-        /// Attempts to find the album scans for the specified folder. Tries common folder names and then looks for images in the folder.
+        ///     Attempts to find the album scans for the specified folder. Tries common folder names and then looks for images in
+        ///     the folder.
         /// </summary>
-        /// <param name="Path"></param>
+        /// <param name="path"></param>
         /// <returns></returns>
-        public static List<Scan> FindScans(string Path)
+        public static List<Scan> FindScans(string path)
         {
             // Account for non existant folders.
-            if (!Directory.Exists(Path))
-            {
+            if (!Directory.Exists(path))
                 return new List<Scan>();
-            }
 
-            var searchExtensions = new string[] { "jpg", "png", "bmp" };
-            var searchDirectories = new string[] { "scan", "scans", "Scan", "Scans", "BK", "bk", "bkv0" };
-            var scans = new List<Scan>();
-            var directories = Directory.GetDirectories(Path);
+            var searchExtensions = new[] {"jpg", "png", "bmp"};
+            var searchDirectories = new[] {"scan", "scans", "Scan", "Scans", "BK", "bk", "bkv0"};
+            var directories = Directory.GetDirectories(path);
 
             // Try common directories.
             foreach (var directory in directories)
             {
-                foreach (var searchDir in searchDirectories)
+                if (searchDirectories.Any(searchDir => directory.EndsWith(searchDir)))
                 {
-                    if (directory.EndsWith(searchDir))
-                    {
-                        foreach (var file in Directory.GetFiles(directory))
-                        {
-                            foreach (var ext in searchExtensions)
-                            {
-                                if (file.EndsWith(ext))
-                                {
-                                    scans.Add(new Scan(file));
-                                    break;
-                                }
-                            }
-                        }
-                        return scans;
-                    }
+                    return (from file in Directory.GetFiles(directory)
+                        where searchExtensions.Any(file.EndsWith)
+                        select new Scan(file)).ToList();
                 }
             }
 
             // Search the album folder.
-            var files = Directory.GetFiles(Path);
+            var files = Directory.GetFiles(path);
             // Don't return the cover image as a scan.
-            var cover = FindCover(Path);
-            foreach (var file in files)
-            {
-                foreach (var ext in searchExtensions)
-                {
-                    if (file.EndsWith(ext))
-                    {
-                        if (file != cover)
-                        {
-                            scans.Add(new Scan(file));
-                            break;
-                        }
-                    }
-                }
-            }
+            var cover = FindCover(path);
 
             // Return found scans if any.
-            return scans;
+            return (from file in files
+                    where searchExtensions.Where(file.EndsWith).Any(ext => file != cover)
+                    select new Scan(file)).ToList();
         }
 
         /// <summary>
-        /// Returns whether a file exists on disk or not, uses a cache and scans the whole folder if
-        /// the file is not in the cache already.
+        ///     Returns whether a file exists on disk or not, uses a cache and scans the whole folder if
+        ///     the file is not in the cache already.
         /// </summary>
-        /// <param name="Path">Path to check for existance.</param>
+        /// <param name="path">Path to check for existance.</param>
         /// <returns>Whether the file exists.</returns>
-        public static bool FileExists(string Path)
+        public static bool FileExists(string path)
         {
-            if (FileExistenceCache == null)
+            if (_fileExistenceCache == null)
             {
-                FileExistenceCache = new Dictionary<string, bool>();
-                FolderScanCache = new HashSet<string>();
+                _fileExistenceCache = new Dictionary<string, bool>();
+                _folderScanCache = new HashSet<string>();
             }
 
-            if (!FileExistenceCache.ContainsKey(Path))
+            if (!_fileExistenceCache.ContainsKey(path))
             {
-                var dirPath = System.IO.Path.GetDirectoryName(Path);
+                var dirPath = Path.GetDirectoryName(path);
 
                 // Account for non existant folders.
                 if (!Directory.Exists(dirPath))
                 {
-                    FileExistenceCache.Add(Path, false);
+                    _fileExistenceCache.Add(path, false);
                     return false;
                 }
 
-                if (FolderScanCache.Contains(dirPath))
+                if (_folderScanCache.Contains(dirPath))
                 {
-                    FileExistenceCache.Add(Path, false);
+                    _fileExistenceCache.Add(path, false);
                 }
                 else
                 {
-                    FolderScanCache.Add(dirPath);
+                    _folderScanCache.Add(dirPath);
                     var dirFiles = Directory.GetFiles(dirPath);
                     foreach (var file in dirFiles)
-                    {
-                        FileExistenceCache.Add(file, true);
-                    }
-                    if (!dirFiles.Contains(Path))
-                    {
-                        FileExistenceCache.Add(Path, false);
-                    }
+                        _fileExistenceCache.Add(file, true);
+                    if (!dirFiles.Contains(path))
+                        _fileExistenceCache.Add(path, false);
                 }
             }
 
-            return FileExistenceCache[Path];
+            return _fileExistenceCache[path];
         }
 
-        public static bool SongExists(string Path)
+        public static bool SongExists(string path)
         {
-            if (CueSheetCache == null)
-            {
-                CueSheetCache = new Dictionary<string, CueSheet>();
-            }
+            if (_cueSheetCache == null)
+                _cueSheetCache = new Dictionary<string, CueSheet>();
 
             // Only load a CUE if the song is actually loaded from one.
-            if (Path.Contains(".cue:"))
+            if (path.Contains(".cue:"))
             {
-                var parts = Path.Split(':');
+                var parts = path.Split(':');
                 var file = $"{parts[0]}:{parts[1]}";
                 // AIMP stores indexes zero based, CUE is one based.
                 var index = int.Parse(parts[2]) + 1;
 
                 // Cache the CUE sheet.
-                if (!CueSheetCache.ContainsKey(file))
-                {
-                    CueSheetCache.Add(file, new CueSheet(file));
-                }
+                if (!_cueSheetCache.ContainsKey(file))
+                    _cueSheetCache.Add(file, new CueSheet(file));
 
-                var sheet = CueSheetCache[file];
+                var sheet = _cueSheetCache[file];
 
-                return sheet.Tracks.Any((x) => x.ID == index);
+                return sheet.Tracks.Any(x => x.Id == index);
             }
-            else
-            {
-                // Proceed as normal.
-                return FileExists(Path);
-            }
+            // Proceed as normal.
+            return FileExists(path);
         }
 
-        public static TagLib.Tag GetTags(string Filename)
+        public static Tag GetTags(string filename)
         {
-            if (TagCache == null)
-            {
-                TagCache = new Dictionary<string, TagLib.Tag>();
-            }
+            if (_tagCache == null)
+                _tagCache = new Dictionary<string, Tag>();
 
-            if (!TagCache.ContainsKey(Filename))
-            {
-                if (File.Exists(Filename))
-                {
-                    TagCache.Add(Filename, TagLib.File.Create(Filename).Tag);
-                }
+            if (!_tagCache.ContainsKey(filename))
+                if (File.Exists(filename))
+                    _tagCache.Add(filename, TagLib.File.Create(filename).Tag);
                 else
-                {
-                    TagCache.Add(Filename, null);
-                }
-            }
+                    _tagCache.Add(filename, null);
 
-            return TagCache[Filename];
+            return _tagCache[filename];
         }
 
         /// <summary>
-        /// Finds missing songs or songs with changed filetypes in the specified playlist.
+        ///     Finds missing songs or songs with changed filetypes in the specified playlist.
         /// </summary>
-        /// <param name="Playlist">Playlist to search.</param>
-        /// <param name="Missing">List to store the missing songs.</param>
-        /// <param name="FormatChanged">List to store the songs with changed filetypes.</param>
+        /// <param name="playlist">Playlist to search.</param>
+        /// <param name="missing">List to store the missing songs.</param>
+        /// <param name="formatChanged">List to store the songs with changed filetypes.</param>
         /// <returns>True if songs were missing, false if not.</returns>
-        public static bool FindMissing(Playlist Playlist, out List<Song> Missing, out List<FormatChange> FormatChanged)
+        public static bool FindMissing(Playlist playlist, out List<Song> missing, out List<FormatChange> formatChanged)
         {
             var found = false;
-            Missing = new List<Song>();
-            FormatChanged = new List<FormatChange>();
-            var songs = Playlist.Songs;
+            missing = new List<Song>();
+            formatChanged = new List<FormatChange>();
+            var songs = playlist.Songs;
 
             foreach (var song in songs)
-            {
                 if (!SongExists(song.Path))
                 {
                     var changed = false;
                     foreach (var extension in MusicExtensions)
                     {
-                        var newPath = Path.Combine(Path.GetDirectoryName(song.Path), Path.ChangeExtension(song.Path, extension));
+                        var newPath = Path.Combine(Path.GetDirectoryName(song.Path),
+                            Path.ChangeExtension(song.Path, extension));
                         // No point checking for CUE sheets here.
                         if (FileExists(newPath))
                         {
-                            FormatChanged.Add(new FormatChange(song, extension));
+                            formatChanged.Add(new FormatChange(song, extension));
                             changed = true;
                             found = true;
                             break;
@@ -324,30 +272,30 @@ namespace AIMPPL_Copy
                     }
                     if (!changed)
                     {
-                        Missing.Add(song);
+                        missing.Add(song);
                         found = true;
                     }
                 }
-            }
 
             return found;
         }
 
         /// <summary>
-        /// Searches for missing songs.
+        ///     Searches for missing songs.
         /// </summary>
-        /// <param name="MissingSongs">List of songs to search for.</param>
-        /// <param name="Directory">Directory to search in.</param>
-        /// <param name="SearchTags">Whether to scan tags if filename search fails.</param>
-        /// <param name="SearchCue">Whether to scan cue files if filename search fails.</param>
+        /// <param name="missingSongs">List of songs to search for.</param>
+        /// <param name="directory">Directory to search in.</param>
+        /// <param name="searchTags">Whether to scan tags if filename search fails.</param>
+        /// <param name="searchCue">Whether to scan cue files if filename search fails.</param>
         /// <returns>Tuple of songs and found filepaths.</returns>
-        public static List<Tuple<Song, string>> SearchSongs(List<Song> MissingSongs, string Directory, bool SearchTags, bool SearchCue)
+        public static List<Tuple<Song, string>> SearchSongs(List<Song> missingSongs, string directory, bool searchTags,
+            bool searchCue)
         {
             var foundSongs = new List<Tuple<Song, string>>();
-            var files = Apex.FileUtil.GetFiles(Directory);
+            var files = FileUtil.GetFiles(directory);
 
             // Try to find the song in the search directory.
-            foreach (var song in MissingSongs)
+            foreach (var song in missingSongs)
             {
                 var found = false;
                 // In theory, FLAC and MP3 files are much more likely to be found so prioritise searching by
@@ -355,16 +303,12 @@ namespace AIMPPL_Copy
                 foreach (var extension in MusicExtensions)
                 {
                     if (found)
-                    {
                         continue;
-                    }
 
                     foreach (var file in files)
                     {
                         if (found)
-                        {
                             continue;
-                        }
 
                         // Update the data grid with the new filename if we found it.
                         if (Path.GetFileName(Path.ChangeExtension(song.Path, extension)) == Path.GetFileName(file))
@@ -376,94 +320,74 @@ namespace AIMPPL_Copy
                 }
             }
 
-            if (SearchCue)
+            if (searchCue)
             {
-                foreach (var song in foundSongs.Select((x) => x.Item1))
-                {
-                    MissingSongs.Remove(song);
-                }
+                foreach (var song in foundSongs.Select(x => x.Item1))
+                    missingSongs.Remove(song);
 
-                if (MissingSongs.Count > 0)
+                if (missingSongs.Count > 0)
                 {
-                    var filteredFiles = files.Where((x) => string.Compare(Path.GetExtension(x), ".cue", true) == 0);
+                    var filteredFiles = files.Where(x => String.Compare(Path.GetExtension(x), ".cue", StringComparison.OrdinalIgnoreCase) == 0);
 
                     foreach (var cueFile in filteredFiles)
                     {
-                        if (MissingSongs.Count == 0)
-                        {
+                        if (missingSongs.Count == 0)
                             break;
-                        }
 
                         var cueSheet = new CueSheet(cueFile);
 
-                        for (int i = 0; i < MissingSongs.Count; i++)
+                        for (var i = 0; i < missingSongs.Count; i++)
                         {
-                            var song = MissingSongs[i];
-                            if (string.Compare(song.Album, cueSheet.Album, true) == 0)
-                            {
-                                for (int j = 0; j < cueSheet.Tracks.Count; j++)
-                                {
-                                    if (string.Compare(song.Title, cueSheet.Tracks[j].Title, true) == 0)
+                            var song = missingSongs[i];
+                            if (String.Compare(song.Album, cueSheet.Album, StringComparison.OrdinalIgnoreCase) == 0)
+                                for (var j = 0; j < cueSheet.Tracks.Count; j++)
+                                    if (String.Compare(song.Title, cueSheet.Tracks[j].Title, StringComparison.OrdinalIgnoreCase) == 0)
                                     {
                                         foundSongs.Add(new Tuple<Song, string>(song, $"{cueFile}:{j}"));
-                                        MissingSongs.RemoveAt(i);
+                                        missingSongs.RemoveAt(i);
                                         i--;
                                         break;
                                     }
-                                }
-                            }
                         }
                     }
                 }
             }
 
-            if (SearchTags)
+            if (searchTags)
             {
                 // As the list might have been pruned in the cue search, we can't just remove
                 // all the entries without checking first.
-                foreach (var song in foundSongs.Select((x) => x.Item1))
-                {
-                    if (MissingSongs.Contains(song))
-                    {
-                        MissingSongs.Remove(song);
-                    }
-                }
+                foreach (var song in foundSongs.Select(x => x.Item1))
+                    if (missingSongs.Contains(song))
+                        missingSongs.Remove(song);
 
                 // Songs that couldn't be found from path alone.
-                if (MissingSongs.Count > 0)
+                if (missingSongs.Count > 0)
                 {
-                    var filteredFiles = new List<string>();
-                    foreach (var file in files)
-                    {
-                        var extension = Path.GetExtension(file);
-                        if (extension.Length > 1)
-                        {
-                            if (MusicExtensions.Contains(extension.Substring(1)))
-                            {
-                                filteredFiles.Add(file);
-                            }
-                        }
-                    }
+                    var filteredFiles = (from file in files
+                                         let extension = Path.GetExtension(file)
+                                         where extension.Length > 1
+                                         where MusicExtensions.Contains(extension.Substring(1))
+                                         select file).ToList();
 
                     // Search through every music file found.
                     foreach (var file in filteredFiles)
                     {
                         // No point loading tags if all songs have been found already.
-                        if (MissingSongs.Count == 0)
-                        {
+                        if (missingSongs.Count == 0)
                             break;
-                        }
 
                         var tag = GetTags(file);
 
-                        for (int i = 0; i < MissingSongs.Count; i++)
+                        for (var i = 0; i < missingSongs.Count; i++)
                         {
-                            var song = MissingSongs[i];
-                            if (string.Compare(song.Title, tag.Title, true) == 0 && string.Compare(song.Album, tag.Album, true) == 0)
+                            var song = missingSongs[i];
+                            if (string.Compare(song.Title, tag.Title, StringComparison.OrdinalIgnoreCase) == 0 &&
+                                string.Compare(song.Album, tag.Album, StringComparison.OrdinalIgnoreCase) == 0)
                             {
                                 // That's probably the right song.
                                 foundSongs.Add(new Tuple<Song, string>(song, file));
-                                MissingSongs.RemoveAt(i);
+                                missingSongs.RemoveAt(i);
                                 break;
                             }
                         }

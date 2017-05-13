@@ -1,30 +1,35 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Windows.Forms;
-using Aga.Controls.Tree;
+﻿using System.Windows.Forms;
 
 namespace AIMPPL_Copy.PlaylistTree
 {
     public class SongNode : PlaylistTreeNodeBase
     {
-        private string sourceFilename = "";
+        private string _destinationFilename = "";
+
+        private Song _song;
+        private string _sourceFilename = "";
+
+        public SongNode(Song song) : base(song.Title)
+        {
+            Song = song;
+        }
+
         public string SourceFilename
         {
-            get { return sourceFilename; }
+            get => _sourceFilename;
             set
             {
-                sourceFilename = value;
+                _sourceFilename = value;
                 NotifyModel();
             }
         }
 
-        private string destinationFilename = "";
         public string DestinationFilename
         {
-            get { return destinationFilename; }
+            get => _destinationFilename;
             set
             {
-                destinationFilename = value;
+                _destinationFilename = value;
                 NotifyModel();
             }
         }
@@ -43,29 +48,17 @@ namespace AIMPPL_Copy.PlaylistTree
             }
         }
 
-        private Song song;
         public Song Song
         {
-            get { return song; }
+            get => _song;
             set
             {
-                song = value;
+                _song = value;
                 Text = value.Title;
                 SourceFilename = value.Path;
             }
         }
 
-        public override bool IsLeaf
-        {
-            get
-            {
-                return true;
-            }
-        }
-
-        public SongNode(Song Song) : base(Song.Title)
-        {
-            this.Song = Song;
-        }
+        public override bool IsLeaf => true;
     }
 }

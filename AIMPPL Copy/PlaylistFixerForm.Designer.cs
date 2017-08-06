@@ -28,173 +28,174 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.pnlBottom = new System.Windows.Forms.Panel();
-            this.pnlBottomRight = new System.Windows.Forms.Panel();
-            this.pnlBottomRightRight = new System.Windows.Forms.Panel();
-            this.pnlBottomRightRightRight = new System.Windows.Forms.Panel();
-            this.chkScanCue = new Apex.Translation.Controls.TranslatableCheckBox();
-            this.pnlBottomRightRightLeft = new System.Windows.Forms.Panel();
-            this.chkScanTags = new Apex.Translation.Controls.TranslatableCheckBox();
-            this.pnlBottomRightLeft = new System.Windows.Forms.Panel();
-            this.btnSearch = new Apex.Translation.Controls.TranslatableButton();
-            this.pnlBottomLeft = new System.Windows.Forms.Panel();
-            this.btnApply = new Apex.Translation.Controls.TranslatableButton();
-            this.pnlTop = new System.Windows.Forms.Panel();
-            this.ptcTree = new AIMPPL_Copy.PlaylistTree.PlaylistTreeControl();
+            this.uiBottom = new System.Windows.Forms.Panel();
+            this.uiApplyPanel = new System.Windows.Forms.Panel();
+            this.uiApply = new Apex.Translation.Controls.TranslatableButton();
+            this.uiSearchPanel = new System.Windows.Forms.Panel();
+            this.uiSearch = new Apex.Translation.Controls.TranslatableButton();
+            this.uiScanFilenamesPanel = new System.Windows.Forms.Panel();
+            this.uiScanFilenames = new Apex.Translation.Controls.TranslatableCheckBox();
+            this.uiScanTagsPanel = new System.Windows.Forms.Panel();
+            this.uiScanTags = new Apex.Translation.Controls.TranslatableCheckBox();
+            this.uiScanCuePanel = new System.Windows.Forms.Panel();
+            this.uiScanCues = new Apex.Translation.Controls.TranslatableCheckBox();
+            this.uiTop = new System.Windows.Forms.Panel();
+            this.uiTree = new AIMPPL_Copy.PlaylistTree.PlaylistTreeControl();
             this.nodeTextBox1 = new Aga.Controls.Tree.NodeControls.NodeTextBox();
             this.FileDialogue = new System.Windows.Forms.OpenFileDialog();
             this.DirectoryDialogue = new System.Windows.Forms.FolderBrowserDialog();
-            this.PlaylistFixerTitle = new Apex.Translation.Controls.TranslatableTitle();
-            this.pnlBottom.SuspendLayout();
-            this.pnlBottomRight.SuspendLayout();
-            this.pnlBottomRightRight.SuspendLayout();
-            this.pnlBottomRightRightRight.SuspendLayout();
-            this.pnlBottomRightRightLeft.SuspendLayout();
-            this.pnlBottomRightLeft.SuspendLayout();
-            this.pnlBottomLeft.SuspendLayout();
-            this.pnlTop.SuspendLayout();
+            this.uiTitle = new Apex.Translation.Controls.TranslatableTitle();
+            this.uiStatusStrip = new System.Windows.Forms.StatusStrip();
+            this.uiStatus = new System.Windows.Forms.ToolStripStatusLabel();
+            this.uiBottom.SuspendLayout();
+            this.uiApplyPanel.SuspendLayout();
+            this.uiSearchPanel.SuspendLayout();
+            this.uiScanFilenamesPanel.SuspendLayout();
+            this.uiScanTagsPanel.SuspendLayout();
+            this.uiScanCuePanel.SuspendLayout();
+            this.uiTop.SuspendLayout();
+            this.uiStatusStrip.SuspendLayout();
             this.SuspendLayout();
             // 
-            // pnlBottom
+            // uiBottom
             // 
-            this.pnlBottom.Controls.Add(this.pnlBottomRight);
-            this.pnlBottom.Controls.Add(this.pnlBottomLeft);
-            this.pnlBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlBottom.Location = new System.Drawing.Point(0, 556);
-            this.pnlBottom.Name = "pnlBottom";
-            this.pnlBottom.Size = new System.Drawing.Size(989, 29);
-            this.pnlBottom.TabIndex = 6;
+            this.uiBottom.Controls.Add(this.uiApplyPanel);
+            this.uiBottom.Controls.Add(this.uiSearchPanel);
+            this.uiBottom.Controls.Add(this.uiScanFilenamesPanel);
+            this.uiBottom.Controls.Add(this.uiScanCuePanel);
+            this.uiBottom.Controls.Add(this.uiScanTagsPanel);
+            this.uiBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.uiBottom.Location = new System.Drawing.Point(0, 534);
+            this.uiBottom.Name = "uiBottom";
+            this.uiBottom.Size = new System.Drawing.Size(989, 29);
+            this.uiBottom.TabIndex = 6;
             // 
-            // pnlBottomRight
+            // uiApplyPanel
             // 
-            this.pnlBottomRight.Controls.Add(this.pnlBottomRightRight);
-            this.pnlBottomRight.Controls.Add(this.pnlBottomRightLeft);
-            this.pnlBottomRight.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlBottomRight.Location = new System.Drawing.Point(247, 0);
-            this.pnlBottomRight.Name = "pnlBottomRight";
-            this.pnlBottomRight.Size = new System.Drawing.Size(742, 29);
-            this.pnlBottomRight.TabIndex = 2;
+            this.uiApplyPanel.Controls.Add(this.uiApply);
+            this.uiApplyPanel.Location = new System.Drawing.Point(0, 0);
+            this.uiApplyPanel.Name = "uiApplyPanel";
+            this.uiApplyPanel.Size = new System.Drawing.Size(247, 29);
+            this.uiApplyPanel.TabIndex = 1;
             // 
-            // pnlBottomRightRight
+            // uiApply
             // 
-            this.pnlBottomRightRight.Controls.Add(this.pnlBottomRightRightRight);
-            this.pnlBottomRightRight.Controls.Add(this.pnlBottomRightRightLeft);
-            this.pnlBottomRightRight.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlBottomRightRight.Location = new System.Drawing.Point(247, 0);
-            this.pnlBottomRightRight.Name = "pnlBottomRightRight";
-            this.pnlBottomRightRight.Size = new System.Drawing.Size(495, 29);
-            this.pnlBottomRightRight.TabIndex = 2;
+            this.uiApply.DefaultString = null;
+            this.uiApply.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.uiApply.Location = new System.Drawing.Point(0, 0);
+            this.uiApply.Name = "uiApply";
+            this.uiApply.Size = new System.Drawing.Size(247, 29);
+            this.uiApply.TabIndex = 0;
+            this.uiApply.Text = "FIX_PLAYLIST.BUTTON.APPLY";
+            this.uiApply.TranslationString = "FIX_PLAYLIST.BUTTON.APPLY";
+            this.uiApply.UseVisualStyleBackColor = true;
+            this.uiApply.Click += new System.EventHandler(this.uiApply_Click);
             // 
-            // pnlBottomRightRightRight
+            // uiSearchPanel
             // 
-            this.pnlBottomRightRightRight.Controls.Add(this.chkScanCue);
-            this.pnlBottomRightRightRight.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlBottomRightRightRight.Location = new System.Drawing.Point(247, 0);
-            this.pnlBottomRightRightRight.Name = "pnlBottomRightRightRight";
-            this.pnlBottomRightRightRight.Size = new System.Drawing.Size(248, 29);
-            this.pnlBottomRightRightRight.TabIndex = 2;
+            this.uiSearchPanel.Controls.Add(this.uiSearch);
+            this.uiSearchPanel.Location = new System.Drawing.Point(100, 0);
+            this.uiSearchPanel.Name = "uiSearchPanel";
+            this.uiSearchPanel.Size = new System.Drawing.Size(247, 29);
+            this.uiSearchPanel.TabIndex = 1;
             // 
-            // chkScanCue
+            // uiSearch
             // 
-            this.chkScanCue.AutoSize = true;
-            this.chkScanCue.DefaultString = null;
-            this.chkScanCue.Location = new System.Drawing.Point(6, 7);
-            this.chkScanCue.Name = "chkScanCue";
-            this.chkScanCue.Size = new System.Drawing.Size(193, 16);
-            this.chkScanCue.TabIndex = 0;
-            this.chkScanCue.Text = "FIX_PLAYLIST.LABEL.SCAN_CUE";
-            this.chkScanCue.TranslationString = "FIX_PLAYLIST.LABEL.SCAN_CUE";
-            this.chkScanCue.UseVisualStyleBackColor = true;
+            this.uiSearch.DefaultString = null;
+            this.uiSearch.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.uiSearch.Location = new System.Drawing.Point(0, 0);
+            this.uiSearch.Name = "uiSearch";
+            this.uiSearch.Size = new System.Drawing.Size(247, 29);
+            this.uiSearch.TabIndex = 0;
+            this.uiSearch.Text = "FIX_PLAYLIST.BUTTON.SEARCH";
+            this.uiSearch.TranslationString = "FIX_PLAYLIST.BUTTON.SEARCH";
+            this.uiSearch.UseVisualStyleBackColor = true;
+            this.uiSearch.Click += new System.EventHandler(this.uiSearch_Click);
             // 
-            // pnlBottomRightRightLeft
+            // uiScanFilenamesPanel
             // 
-            this.pnlBottomRightRightLeft.Controls.Add(this.chkScanTags);
-            this.pnlBottomRightRightLeft.Dock = System.Windows.Forms.DockStyle.Left;
-            this.pnlBottomRightRightLeft.Location = new System.Drawing.Point(0, 0);
-            this.pnlBottomRightRightLeft.Name = "pnlBottomRightRightLeft";
-            this.pnlBottomRightRightLeft.Size = new System.Drawing.Size(247, 29);
-            this.pnlBottomRightRightLeft.TabIndex = 1;
+            this.uiScanFilenamesPanel.Controls.Add(this.uiScanFilenames);
+            this.uiScanFilenamesPanel.Location = new System.Drawing.Point(200, 0);
+            this.uiScanFilenamesPanel.Name = "uiScanFilenamesPanel";
+            this.uiScanFilenamesPanel.Size = new System.Drawing.Size(224, 29);
+            this.uiScanFilenamesPanel.TabIndex = 2;
             // 
-            // chkScanTags
+            // uiScanFilenames
             // 
-            this.chkScanTags.AutoSize = true;
-            this.chkScanTags.DefaultString = null;
-            this.chkScanTags.Location = new System.Drawing.Point(0, 7);
-            this.chkScanTags.Name = "chkScanTags";
-            this.chkScanTags.Size = new System.Drawing.Size(200, 16);
-            this.chkScanTags.TabIndex = 0;
-            this.chkScanTags.Text = "FIX_PLAYLIST.LABEL.SCAN_TAGS";
-            this.chkScanTags.TranslationString = "FIX_PLAYLIST.LABEL.SCAN_TAGS";
-            this.chkScanTags.UseVisualStyleBackColor = true;
-            this.chkScanTags.Click += new System.EventHandler(this.chkScanTags_Click);
+            this.uiScanFilenames.AutoSize = true;
+            this.uiScanFilenames.DefaultString = null;
+            this.uiScanFilenames.Location = new System.Drawing.Point(0, 7);
+            this.uiScanFilenames.Name = "uiScanFilenames";
+            this.uiScanFilenames.Size = new System.Drawing.Size(232, 16);
+            this.uiScanFilenames.TabIndex = 0;
+            this.uiScanFilenames.Text = "FIX_PLAYLIST.LABEL.SCAN_FILENAMES";
+            this.uiScanFilenames.TranslationString = "FIX_PLAYLIST.LABEL.SCAN_FILENAMES";
+            this.uiScanFilenames.UseVisualStyleBackColor = true;
             // 
-            // pnlBottomRightLeft
+            // uiScanTagsPanel
             // 
-            this.pnlBottomRightLeft.Controls.Add(this.btnSearch);
-            this.pnlBottomRightLeft.Dock = System.Windows.Forms.DockStyle.Left;
-            this.pnlBottomRightLeft.Location = new System.Drawing.Point(0, 0);
-            this.pnlBottomRightLeft.Name = "pnlBottomRightLeft";
-            this.pnlBottomRightLeft.Size = new System.Drawing.Size(247, 29);
-            this.pnlBottomRightLeft.TabIndex = 1;
+            this.uiScanTagsPanel.Controls.Add(this.uiScanTags);
+            this.uiScanTagsPanel.Location = new System.Drawing.Point(400, 0);
+            this.uiScanTagsPanel.Name = "uiScanTagsPanel";
+            this.uiScanTagsPanel.Size = new System.Drawing.Size(224, 29);
+            this.uiScanTagsPanel.TabIndex = 1;
             // 
-            // btnSearch
+            // uiScanTags
             // 
-            this.btnSearch.DefaultString = null;
-            this.btnSearch.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnSearch.Location = new System.Drawing.Point(0, 0);
-            this.btnSearch.Name = "btnSearch";
-            this.btnSearch.Size = new System.Drawing.Size(247, 29);
-            this.btnSearch.TabIndex = 0;
-            this.btnSearch.Text = "FIX_PLAYLIST.BUTTON.SEARCH";
-            this.btnSearch.TranslationString = "FIX_PLAYLIST.BUTTON.SEARCH";
-            this.btnSearch.UseVisualStyleBackColor = true;
-            this.btnSearch.Click += new System.EventHandler(this.btnSearch_Click);
+            this.uiScanTags.AutoSize = true;
+            this.uiScanTags.DefaultString = null;
+            this.uiScanTags.Location = new System.Drawing.Point(0, 7);
+            this.uiScanTags.Name = "uiScanTags";
+            this.uiScanTags.Size = new System.Drawing.Size(200, 16);
+            this.uiScanTags.TabIndex = 0;
+            this.uiScanTags.Text = "FIX_PLAYLIST.LABEL.SCAN_TAGS";
+            this.uiScanTags.TranslationString = "FIX_PLAYLIST.LABEL.SCAN_TAGS";
+            this.uiScanTags.UseVisualStyleBackColor = true;
+            this.uiScanTags.Click += new System.EventHandler(this.uiScanTags_Click);
             // 
-            // pnlBottomLeft
+            // uiScanCuePanel
             // 
-            this.pnlBottomLeft.Controls.Add(this.btnApply);
-            this.pnlBottomLeft.Dock = System.Windows.Forms.DockStyle.Left;
-            this.pnlBottomLeft.Location = new System.Drawing.Point(0, 0);
-            this.pnlBottomLeft.Name = "pnlBottomLeft";
-            this.pnlBottomLeft.Size = new System.Drawing.Size(247, 29);
-            this.pnlBottomLeft.TabIndex = 1;
+            this.uiScanCuePanel.Controls.Add(this.uiScanCues);
+            this.uiScanCuePanel.Location = new System.Drawing.Point(300, 0);
+            this.uiScanCuePanel.Name = "uiScanCuePanel";
+            this.uiScanCuePanel.Size = new System.Drawing.Size(271, 29);
+            this.uiScanCuePanel.TabIndex = 2;
             // 
-            // btnApply
+            // uiScanCues
             // 
-            this.btnApply.DefaultString = null;
-            this.btnApply.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnApply.Location = new System.Drawing.Point(0, 0);
-            this.btnApply.Name = "btnApply";
-            this.btnApply.Size = new System.Drawing.Size(247, 29);
-            this.btnApply.TabIndex = 0;
-            this.btnApply.Text = "FIX_PLAYLIST.BUTTON.APPLY";
-            this.btnApply.TranslationString = "FIX_PLAYLIST.BUTTON.APPLY";
-            this.btnApply.UseVisualStyleBackColor = true;
-            this.btnApply.Click += new System.EventHandler(this.btnApply_Click);
+            this.uiScanCues.AutoSize = true;
+            this.uiScanCues.DefaultString = null;
+            this.uiScanCues.Location = new System.Drawing.Point(6, 7);
+            this.uiScanCues.Name = "uiScanCues";
+            this.uiScanCues.Size = new System.Drawing.Size(193, 16);
+            this.uiScanCues.TabIndex = 0;
+            this.uiScanCues.Text = "FIX_PLAYLIST.LABEL.SCAN_CUE";
+            this.uiScanCues.TranslationString = "FIX_PLAYLIST.LABEL.SCAN_CUE";
+            this.uiScanCues.UseVisualStyleBackColor = true;
             // 
-            // pnlTop
+            // uiTop
             // 
-            this.pnlTop.Controls.Add(this.ptcTree);
-            this.pnlTop.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlTop.Location = new System.Drawing.Point(0, 0);
-            this.pnlTop.Name = "pnlTop";
-            this.pnlTop.Size = new System.Drawing.Size(989, 556);
-            this.pnlTop.TabIndex = 7;
+            this.uiTop.Controls.Add(this.uiTree);
+            this.uiTop.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.uiTop.Location = new System.Drawing.Point(0, 0);
+            this.uiTop.Name = "uiTop";
+            this.uiTop.Size = new System.Drawing.Size(989, 534);
+            this.uiTop.TabIndex = 7;
             // 
-            // ptcTree
+            // uiTree
             // 
-            this.ptcTree.DefaultDestination = "Destination";
-            this.ptcTree.DefaultName = "Name";
-            this.ptcTree.DefaultSource = "Source";
-            this.ptcTree.DestinationString = "FIX_PLAYLIST.LABEL.COLUMN.DESTINATION";
-            this.ptcTree.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ptcTree.Location = new System.Drawing.Point(0, 0);
-            this.ptcTree.Name = "ptcTree";
-            this.ptcTree.NameString = "FIX_PLAYLIST.LABEL.COLUMN.NAME";
-            this.ptcTree.Size = new System.Drawing.Size(989, 556);
-            this.ptcTree.SourceString = "FIX_PLAYLIST.LABEL.COLUMN.SOURCE";
-            this.ptcTree.TabIndex = 0;
-            this.ptcTree.DestinationClicked += new System.EventHandler<AIMPPL_Copy.PlaylistTree.PlaylistTreeControl.DestinationClickedEventArgs>(this.ptcTree_DestinationClicked);
+            this.uiTree.DefaultDestination = "Destination";
+            this.uiTree.DefaultName = "Name";
+            this.uiTree.DefaultSource = "Source";
+            this.uiTree.DestinationString = "FIX_PLAYLIST.LABEL.COLUMN.DESTINATION";
+            this.uiTree.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.uiTree.Location = new System.Drawing.Point(0, 0);
+            this.uiTree.Name = "uiTree";
+            this.uiTree.NameString = "FIX_PLAYLIST.LABEL.COLUMN.NAME";
+            this.uiTree.Size = new System.Drawing.Size(989, 534);
+            this.uiTree.SourceString = "FIX_PLAYLIST.LABEL.COLUMN.SOURCE";
+            this.uiTree.TabIndex = 0;
+            this.uiTree.DestinationClicked += new System.EventHandler<AIMPPL_Copy.PlaylistTree.PlaylistTreeControl.DestinationClickedEventArgs>(this.uiTree_DestinationClicked);
             // 
             // nodeTextBox1
             // 
@@ -211,56 +212,78 @@
             // 
             this.DirectoryDialogue.ShowNewFolderButton = false;
             // 
-            // PlaylistFixerTitle
+            // uiTitle
             // 
-            this.PlaylistFixerTitle.DefaultString = null;
-            this.PlaylistFixerTitle.ParentForm = this;
-            this.PlaylistFixerTitle.TranslationString = "TITLE.FIX_PLAYLIST";
+            this.uiTitle.DefaultString = null;
+            this.uiTitle.ParentForm = this;
+            this.uiTitle.TranslationString = "TITLE.FIX_PLAYLIST";
+            // 
+            // uiStatusStrip
+            // 
+            this.uiStatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.uiStatus});
+            this.uiStatusStrip.Location = new System.Drawing.Point(0, 563);
+            this.uiStatusStrip.Name = "uiStatusStrip";
+            this.uiStatusStrip.Size = new System.Drawing.Size(989, 22);
+            this.uiStatusStrip.TabIndex = 8;
+            this.uiStatusStrip.Text = "statusStrip1";
+            // 
+            // uiStatus
+            // 
+            this.uiStatus.Name = "uiStatus";
+            this.uiStatus.Size = new System.Drawing.Size(118, 17);
+            this.uiStatus.Text = "toolStripStatusLabel1";
             // 
             // PlaylistFixerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(989, 585);
-            this.Controls.Add(this.pnlTop);
-            this.Controls.Add(this.pnlBottom);
+            this.Controls.Add(this.uiTop);
+            this.Controls.Add(this.uiBottom);
+            this.Controls.Add(this.uiStatusStrip);
             this.Name = "PlaylistFixerForm";
             this.Text = "TITLE.FIX_PLAYLIST";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.BulkPlaylistFixerForm_FormClosing);
-            this.Load += new System.EventHandler(this.BulkPlaylistFixerForm_Load);
-            this.SizeChanged += new System.EventHandler(this.BulkPlaylistFixerForm_SizeChanged);
-            this.pnlBottom.ResumeLayout(false);
-            this.pnlBottomRight.ResumeLayout(false);
-            this.pnlBottomRightRight.ResumeLayout(false);
-            this.pnlBottomRightRightRight.ResumeLayout(false);
-            this.pnlBottomRightRightRight.PerformLayout();
-            this.pnlBottomRightRightLeft.ResumeLayout(false);
-            this.pnlBottomRightRightLeft.PerformLayout();
-            this.pnlBottomRightLeft.ResumeLayout(false);
-            this.pnlBottomLeft.ResumeLayout(false);
-            this.pnlTop.ResumeLayout(false);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.PlaylistFixerForm_FormClosing);
+            this.Load += new System.EventHandler(this.PlaylistFixerForm_Load);
+            this.SizeChanged += new System.EventHandler(this.PlaylistFixerForm_SizeChanged);
+            this.uiBottom.ResumeLayout(false);
+            this.uiApplyPanel.ResumeLayout(false);
+            this.uiSearchPanel.ResumeLayout(false);
+            this.uiScanFilenamesPanel.ResumeLayout(false);
+            this.uiScanFilenamesPanel.PerformLayout();
+            this.uiScanTagsPanel.ResumeLayout(false);
+            this.uiScanTagsPanel.PerformLayout();
+            this.uiScanCuePanel.ResumeLayout(false);
+            this.uiScanCuePanel.PerformLayout();
+            this.uiTop.ResumeLayout(false);
+            this.uiStatusStrip.ResumeLayout(false);
+            this.uiStatusStrip.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
 
-        private System.Windows.Forms.Panel pnlBottom;
-        private System.Windows.Forms.Panel pnlBottomRight;
-        private Apex.Translation.Controls.TranslatableButton btnSearch;
-        private System.Windows.Forms.Panel pnlBottomLeft;
-        private Apex.Translation.Controls.TranslatableButton btnApply;
-        private System.Windows.Forms.Panel pnlTop;
-        private PlaylistTree.PlaylistTreeControl ptcTree;
+        private System.Windows.Forms.Panel uiBottom;
+        private Apex.Translation.Controls.TranslatableButton uiSearch;
+        private System.Windows.Forms.Panel uiApplyPanel;
+        private Apex.Translation.Controls.TranslatableButton uiApply;
+        private System.Windows.Forms.Panel uiTop;
+        private PlaylistTree.PlaylistTreeControl uiTree;
         private Aga.Controls.Tree.NodeControls.NodeTextBox nodeTextBox1;
         private System.Windows.Forms.OpenFileDialog FileDialogue;
         private System.Windows.Forms.FolderBrowserDialog DirectoryDialogue;
-        private System.Windows.Forms.Panel pnlBottomRightRight;
-        private Apex.Translation.Controls.TranslatableCheckBox chkScanTags;
-        private System.Windows.Forms.Panel pnlBottomRightLeft;
-        private System.Windows.Forms.Panel pnlBottomRightRightRight;
-        private System.Windows.Forms.Panel pnlBottomRightRightLeft;
-        private Apex.Translation.Controls.TranslatableCheckBox chkScanCue;
-        private Apex.Translation.Controls.TranslatableTitle PlaylistFixerTitle;
+        private Apex.Translation.Controls.TranslatableCheckBox uiScanTags;
+        private System.Windows.Forms.Panel uiSearchPanel;
+        private System.Windows.Forms.Panel uiScanCuePanel;
+        private System.Windows.Forms.Panel uiScanTagsPanel;
+        private Apex.Translation.Controls.TranslatableCheckBox uiScanCues;
+        private Apex.Translation.Controls.TranslatableTitle uiTitle;
+        private System.Windows.Forms.StatusStrip uiStatusStrip;
+        private System.Windows.Forms.ToolStripStatusLabel uiStatus;
+        private System.Windows.Forms.Panel uiScanFilenamesPanel;
+        private Apex.Translation.Controls.TranslatableCheckBox uiScanFilenames;
     }
 }

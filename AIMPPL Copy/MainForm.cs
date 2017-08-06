@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -19,7 +20,8 @@ namespace AIMPPL_Copy
 {
     public partial class MainForm : Form
     {
-        private PlaylistFixerForm _bulkPlaylistFixerForm;
+        private PlaylistFixerForm _playlistFixerForm;
+        private SettingsForm _settingsForm;
         private readonly Dictionary<string, int> _coverMap;
         private readonly LanguageManager _lm;
         private StatisticsForm _statisticsForm;
@@ -32,29 +34,6 @@ namespace AIMPPL_Copy
             _lm.UseOSLanguage("en-AU");
             _lm.AddAllControls(this);
 
-            const BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.Public;
-            var searchQueue = new Queue<Component>();
-            foreach (Component control in Controls)
-                searchQueue.Enqueue(control);
-            searchQueue.Enqueue(MainTitle);
-
-            while (searchQueue.Count > 0)
-            {
-                var control = searchQueue.Dequeue();
-                var props = control.GetType().GetProperties(bindFlags);
-                foreach (var prop in props)
-                    if (prop.Name == "LanguageManager")
-                    {
-                        prop.SetValue(control, _lm);
-                    }
-                    else if (prop.Name == "Controls")
-                    {
-                        var children = (Control.ControlCollection)prop.GetValue(control);
-                        foreach (Control child in children)
-                            searchQueue.Enqueue(child);
-                    }
-            }
-
             TooltipTranslator.UpdateControl(btnCopy, "MAIN.TOOLTIP.COPY");
             TooltipTranslator.UpdateControl(btnFixPlaylist, "MAIN.TOOLTIP.FIX_PLAYLIST");
             TooltipTranslator.LanguageManager = _lm;
@@ -62,6 +41,7 @@ namespace AIMPPL_Copy
             _coverMap = new Dictionary<string, int>();
             // Load thumbnails to speed it up zoom zoom.
             if (File.Exists("thumbs.dat"))
+            {
                 using (var fs = File.Open("thumbs.dat", FileMode.Open))
                 {
                     using (var r = new BinaryReader(fs))
@@ -79,6 +59,7 @@ namespace AIMPPL_Copy
                         }
                     }
                 }
+            }
 
             if (Settings.Default.PlaylistPath == "<default>")
             {
@@ -94,6 +75,13 @@ namespace AIMPPL_Copy
                     Close();
                 }
             }
+
+            if (Settings.Default.MusicExtensions == null)
+                Settings.Default.MusicExtensions = new StringCollection();
+
+            if (Settings.Default.MusicExtensions.Count == 0)
+                foreach (var ext in Util.MusicExtensions)
+                    Settings.Default.MusicExtensions.Add(ext);
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -222,19 +210,44 @@ namespace AIMPPL_Copy
             {
                 var playlist = lstPlaylists.SelectedItem as Playlist;
                 Settings.Default.DestinationPath = prompt.ChosenFolder;
+
+                var files = new Dictionary<string, (string Path, long Size)>();
+
+                pgbProgress.Value = 0;
                 if (rdbSongs.Checked)
                 {
-                    await CopySongs(Settings.Default.DestinationPath, playlist);
+                    pgbProgress.CustomText = "Finding Songs";
+                    FindSongs(Settings.Default.DestinationPath, playlist, ref files);
                 }
                 else if (rdbAlbums.Checked)
                 {
-                    await CopyAlbums(Settings.Default.DestinationPath, playlist);
+                    pgbProgress.CustomText = "Finding Songs";
+                    FindAlbums(Settings.Default.DestinationPath, playlist, ref files);
                 }
                 else if (rdbScans.Checked)
                 {
-                    await CopyAlbums(Settings.Default.DestinationPath, playlist);
-                    await CopyScans(Settings.Default.DestinationPath, playlist);
+                    pgbProgress.CustomText = "Finding Songs";
+                    FindAlbums(Settings.Default.DestinationPath, playlist, ref files);
+                    pgbProgress.CustomText = "Finding Scans";
+                    FindScans(Settings.Default.DestinationPath, playlist, ref files);
                 }
+
+                var size = files.Sum(x => x.Value.Size);
+                var copied = 0L;
+                // Copy each song individually.
+                foreach (var song in files)
+                {
+                    await Task.Run(() =>
+                    {
+                        File.Copy(song.Key, song.Value.Path, true);
+                    });
+                    copied += song.Value.Size;
+                    pgbProgress.Value = (int)(copied * 100 / size);
+                    pgbProgress.CustomText = $"Copying {Formatting.FormatBytes(copied)}/{Formatting.FormatBytes(size)}";
+                }
+
+                pgbProgress.Value = 0;
+                pgbProgress.CustomText = "Done";
             }
             prompt.Dispose();
         }
@@ -244,27 +257,35 @@ namespace AIMPPL_Copy
         /// </summary>
         /// <param name="path">Path to copy songs to.</param>
         /// <param name="playlist">Playlist to source songs from.</param>
-        private async Task CopySongs(string path, Playlist playlist)
+        /// <param name="files">Dictionary to add songs to.</param>
+        private static void FindSongs(string path, Playlist playlist, ref Dictionary<string, (string Path, long Size)> files)
         {
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
 
-            var size = playlist.Size;
-            var copied = 0L;
-            // Copy each song individually.
             foreach (var song in playlist.Songs)
             {
-                await Task.Run(() =>
+                if (song.Path.Contains(".cue"))
                 {
-                    File.Copy(song.Path, Path.Combine(path, Path.GetFileName(song.Path)), true);
-                });
-                copied += song.Size;
-                pgbProgress.Value = (int)(copied * 100 / size);
-                pgbProgress.CustomText = $"Songs {Formatting.FormatBytes(copied)}/{Formatting.FormatBytes(size)}";
+                    var key = song.Path.Substring(0, song.Path.LastIndexOf(':'));
+                    if (!files.ContainsKey(key))
+                    {
+                        files.Add(key, (Path.Combine(path, Path.GetFileName(key)), 0));
+                        var sheet = new CueSheet(key);
+                        // Add actual source files from cue.
+                        foreach (var file in sheet.Media)
+                        {
+                            var mediaPath = Path.Combine(Path.GetDirectoryName(key), file);
+                            files.Add(mediaPath, (Path.Combine(path, file),  new FileInfo(mediaPath).Length));
+                        }
+                    }
+                }
+                else
+                {
+                    if (!files.ContainsKey(song.Path))
+                        files.Add(song.Path, (Path.Combine(path, Path.GetFileName(song.Path)), song.Size));
+                }
             }
-
-            pgbProgress.Value = 0;
-            pgbProgress.CustomText = "Done";
         }
 
         /// <summary>
@@ -272,13 +293,12 @@ namespace AIMPPL_Copy
         /// </summary>
         /// <param name="path">Path to copy albums to.</param>
         /// <param name="playlist">Playlist to source albums from.</param>
-        private async Task CopyAlbums(string path, Playlist playlist)
+        /// <param name="files">Dictionary to add albums to.</param>
+        private static void FindAlbums(string path, Playlist playlist, ref Dictionary<string, (string Path, long Size)> files)
         {
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
 
-            var size = playlist.Size;
-            var copied = 0L;
             // Need to create a folder per group.
             foreach (var group in playlist.Groups)
             {
@@ -289,41 +309,40 @@ namespace AIMPPL_Copy
                 // Copy songs.
                 foreach (var song in group.Songs)
                 {
-                    await Task.Run(() =>
+                    if (song.Path.Contains(".cue"))
                     {
-                        File.Copy(song.Path,
-                            Path.Combine(groupDir, Path.GetFileName(song.Path)), true);
-                    });
-                    copied += song.Size;
-                    pgbProgress.Value = (int)(copied * 100 / size);
-                    pgbProgress.CustomText = $"Songs {Formatting.FormatBytes(copied)}/{Formatting.FormatBytes(size)}";
+                        var key = song.Path.Substring(0, song.Path.LastIndexOf(':'));
+                        if (!files.ContainsKey(key))
+                        {
+                            files.Add(key, (Path.Combine(groupDir, Path.GetFileName(key)), 0));
+                            var sheet = new CueSheet(key);
+                            // Add actual source files from cue.
+                            foreach (var file in sheet.Media)
+                            {
+                                var mediaPath = Path.Combine(Path.GetDirectoryName(key), file);
+                                files.Add(mediaPath, (Path.Combine(groupDir, file), new FileInfo(mediaPath).Length));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (!files.ContainsKey(song.Path))
+                            files.Add(song.Path, (Path.Combine(groupDir, Path.GetFileName(song.Path)), song.Size));
+                    }
                 }
             }
 
-            size = playlist.CoverSize;
-            copied = 0L;
             foreach (var group in playlist.Groups)
             {
                 var groupDir = Path.Combine(path, group.Name);
-                if (!Directory.Exists(groupDir))
-                    Directory.CreateDirectory(groupDir);
 
                 // Copy cover art.
                 if (group.Cover.Size > 0)
                 {
-                    await Task.Run(() =>
-                    {
-                        File.Copy(group.Cover.Path,
-                            Path.Combine(groupDir, Path.GetFileName(group.Cover.Path)), true);
-                    });
-                    copied += group.Cover.Size;
-                    pgbProgress.Value = (int)(copied * 100 / size);
-                    pgbProgress.CustomText = $"Covers {Formatting.FormatBytes(copied)}/{Formatting.FormatBytes(size)}";
+                    if (!files.ContainsKey(group.Cover.Path))
+                        files.Add(group.Cover.Path, (Path.Combine(groupDir, Path.GetFileName(group.Cover.Path)), group.Cover.Size));
                 }
             }
-
-            pgbProgress.Value = 0;
-            pgbProgress.CustomText = "Done";
         }
 
         /// <summary>
@@ -331,19 +350,18 @@ namespace AIMPPL_Copy
         /// </summary>
         /// <param name="path">Path to copy scans to.</param>
         /// <param name="playlist">Playlist to source scans from.</param>
-        private async Task CopyScans(string path, Playlist playlist)
+        /// <param name="files">Dictionary to add scans to.</param>
+        private static void FindScans(string path, Playlist playlist, ref Dictionary<string, (string Path, long Size)> files)
         {
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
 
-            var size = playlist.ScanSize;
-            var copied = 0L;
             foreach (var group in playlist.Groups)
             {
                 if (group.Scans.Count == 0)
                     continue;
                 var groupDir = Path.Combine(path, group.Name);
-                var scanDir = Path.Combine(groupDir, group.Scans[0].Directory);
+                var scanDir = group.Scans[0].Directory == groupDir.GetDirectory() ? groupDir : Path.Combine(groupDir, group.Scans[0].Directory);
 
                 if (!Directory.Exists(scanDir))
                     Directory.CreateDirectory(scanDir);
@@ -351,19 +369,10 @@ namespace AIMPPL_Copy
                 // Copy each scan.
                 foreach (var scan in group.Scans)
                 {
-                    await Task.Run(() =>
-                    {
-                        File.Copy(scan.Path, Path.Combine(scanDir, Path.GetFileName(scan.Path)),
-                            true);
-                    });
-                    copied += scan.Size;
-                    pgbProgress.Value = (int)(copied * 100 / size);
-                    pgbProgress.CustomText = $"Scans {Formatting.FormatBytes(copied)}/{Formatting.FormatBytes(size)}";
+                    if (!files.ContainsKey(scan.Path))
+                        files.Add(scan.Path, (Path.Combine(scanDir, Path.GetFileName(scan.Path)), scan.Size));
                 }
             }
-
-            pgbProgress.Value = 0;
-            pgbProgress.CustomText = "Done";
         }
 
         private void treSongs_AfterSelect(object sender, TreeViewEventArgs e)
@@ -407,41 +416,45 @@ namespace AIMPPL_Copy
         {
             if (chkBulkMode.Checked)
             {
-                if (_bulkPlaylistFixerForm == null)
+                if (_playlistFixerForm == null || _playlistFixerForm.CurrentType == PlaylistFixerForm.FixType.Database)
                 {
                     var playlists = lstPlaylists.Items.Cast<Playlist>().ToList();
-                    _bulkPlaylistFixerForm = new PlaylistFixerForm(_lm, playlists, this);
-                    _bulkPlaylistFixerForm.Show();
+                    _playlistFixerForm = new PlaylistFixerForm(_lm, playlists, this);
+                    _playlistFixerForm.Show();
                 }
                 else
                 {
                     var playlists = lstPlaylists.Items.Cast<Playlist>().ToList();
-                    _bulkPlaylistFixerForm.LoadPlaylists(playlists);
-                    _bulkPlaylistFixerForm.BringToFront();
+                    _playlistFixerForm.LoadPlaylists(playlists);
+                    _playlistFixerForm.BringToFront();
                 }
             }
             else
             {
-                if (lstPlaylists.SelectedItem != null && lstPlaylists.SelectedItem is Playlist)
-                    if (_bulkPlaylistFixerForm == null)
-                    {
-                        _bulkPlaylistFixerForm = new PlaylistFixerForm(_lm, lstPlaylists.SelectedItem as Playlist, this);
-                        _bulkPlaylistFixerForm.Show();
-                    }
-                    else
-                    {
-                        _bulkPlaylistFixerForm.LoadSinglePlaylist(lstPlaylists.SelectedItem as Playlist);
-                        _bulkPlaylistFixerForm.BringToFront();
-                    }
+                var item = lstPlaylists.SelectedItem as Playlist;
+                if (item == null)
+                    return;
+                if (_playlistFixerForm == null || _playlistFixerForm.CurrentType == PlaylistFixerForm.FixType.Database)
+                {
+                    _playlistFixerForm = new PlaylistFixerForm(_lm, item, this);
+                    _playlistFixerForm.Show();
+                }
+                else
+                {
+                    _playlistFixerForm.LoadSinglePlaylist(item);
+                    _playlistFixerForm.BringToFront();
+                }
             }
         }
 
         public void ChildClosed(Form child)
         {
             if (child is PlaylistFixerForm)
-                _bulkPlaylistFixerForm = null;
+                _playlistFixerForm = null;
             else if (child is StatisticsForm)
                 _statisticsForm = null;
+            else if (child is SettingsForm)
+                _settingsForm = null;
         }
 
         private void upgradePlaylistsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -481,6 +494,33 @@ namespace AIMPPL_Copy
             else
             {
                 _statisticsForm.BringToFront();
+            }
+        }
+
+        private void fixDatabaseToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_playlistFixerForm == null || _playlistFixerForm.CurrentType == PlaylistFixerForm.FixType.Playlist)
+            {
+                _playlistFixerForm = new PlaylistFixerForm(_lm, this);
+                _playlistFixerForm.Show();
+            }
+            else
+            {
+                _playlistFixerForm.LoadDB();
+                _playlistFixerForm.BringToFront();
+            }
+        }
+
+        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_settingsForm == null)
+            {
+                _settingsForm = new SettingsForm(_lm, this);
+                _settingsForm.Show();
+            }
+            else
+            {
+                _settingsForm.BringToFront();
             }
         }
     }

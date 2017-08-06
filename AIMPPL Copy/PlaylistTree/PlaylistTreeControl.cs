@@ -145,12 +145,9 @@ namespace AIMPPL_Copy.PlaylistTree
             }
         }
 
-        public void AddPlaylist(Playlist playlist, List<Song> songs, List<FormatChange> formatChanges)
+        public PlaylistNode AddPlaylist(Playlist playlist, List<Song> songs, List<FormatChange> formatChanges)
         {
-            var playlistNode = new PlaylistNode(playlist)
-            {
-                Name = playlist.Path
-            };
+            var playlistNode = new PlaylistNode(playlist);
             // Put the changed formats up top.
             foreach (var formatChange in formatChanges)
             {
@@ -168,6 +165,8 @@ namespace AIMPPL_Copy.PlaylistTree
             }
 
             _model.Nodes.Add(playlistNode);
+
+            return playlistNode;
         }
 
         public ReadOnlyCollection<TreeNodeAdv> GetSelection()

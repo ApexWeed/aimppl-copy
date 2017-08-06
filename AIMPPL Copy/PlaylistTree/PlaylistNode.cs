@@ -6,7 +6,7 @@
 
         public PlaylistNode(Playlist playlist) : base(playlist.Name)
         {
-            _playlist = playlist;
+            Playlist = playlist;
         }
 
         public Playlist Playlist

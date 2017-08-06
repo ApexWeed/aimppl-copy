@@ -21,10 +21,12 @@ namespace AIMPPL_Copy
         {
             get
             {
-                var lastIndex = Path.LastIndexOf('\\');
+                var path = Path.EndsWith(".cue") ? System.IO.Path.GetDirectoryName(Path) : Path;
+
+                var lastIndex = path.LastIndexOf('\\');
                 if (lastIndex == -1)
-                    lastIndex = Path.LastIndexOf('/');
-                return Path.Substring(lastIndex + 1);
+                    lastIndex = path.LastIndexOf('/');
+                return path.Substring(lastIndex + 1);
             }
         }
 

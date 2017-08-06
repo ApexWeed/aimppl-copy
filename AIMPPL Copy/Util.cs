@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 using Apex;
 using TagLib;
 using File = System.IO.File;
@@ -14,20 +18,64 @@ namespace AIMPPL_Copy
         private static Dictionary<string, bool> _fileExistenceCache;
         private static HashSet<string> _folderScanCache;
         private static Dictionary<string, CueSheet> _cueSheetCache;
+        private static Dictionary<string, Tag> _tagCache;
 
-        private static readonly string[] MusicExtensions =
+        private static object _cueSheetLock;
+        private static object _tagCacheLock;
+
+        public static readonly string[] MusicExtensions =
         {
-            "flac",
-            "mp3",
-            "alac",
-            "tak",
-            "ape",
-            "wav",
-            "ogg",
-            "m4a"
+            ".flac",
+            ".mp3",
+            ".alac",
+            ".tak",
+            ".ape",
+            ".wav",
+            ".ogg",
+            ".m4a"
         };
 
-        private static Dictionary<string, Tag> _tagCache;
+        private static readonly string[] _skipImages =
+        {
+            "albumartsmall.jpg"
+        };
+
+        private static readonly Regex _extensionRegex;
+        private static readonly Regex _filenameRegex;
+
+        static Util()
+        {
+            _cueSheetCache = new Dictionary<string, CueSheet>();
+            _tagCache = new Dictionary<string, Tag>();
+            _cueSheetLock = new object();
+            _tagCacheLock = new object();
+            _extensionRegex = new Regex(@"\..*$", RegexOptions.Compiled);
+            _filenameRegex = new Regex(@".*[\\\/](.*)", RegexOptions.Compiled);
+        }
+
+        public class SearchProgress
+        {
+            public enum SearchStatus
+            {
+                LoadFiles,
+                Filenames,
+                CueSheets,
+                Tags,
+                Complete
+            }
+
+            public SearchStatus Status { get; set; }
+            public int TotalSongs { get; set; }
+            public int FoundSongs { get; set; }
+
+            public SearchProgress(int totalSongs) => TotalSongs = totalSongs;
+        }
+
+        public static void ClearCaches()
+        {
+            _cueSheetCache.Clear();
+            _tagCache.Clear();
+        }
 
         // From https://stackoverflow.com/a/17457085
         public static long GetActualPosition(StreamReader reader)
@@ -112,7 +160,7 @@ namespace AIMPPL_Copy
 
             // Try to find some sort of image.
             foreach (var file in files)
-                if (searchExtensions.Any(ext => file.EndsWith(ext)))
+                if (searchExtensions.Any(ext => file.EndsWith(ext) && !_skipImages.Contains(Path.GetFileName(file).ToLower())))
                     return file;
 
             // Give up.
@@ -142,6 +190,7 @@ namespace AIMPPL_Copy
                 {
                     return (from file in Directory.GetFiles(directory)
                         where searchExtensions.Any(file.EndsWith)
+                        where !_skipImages.Contains(Path.GetFileName(file).ToLower())
                         select new Scan(file)).ToList();
                 }
             }
@@ -153,8 +202,9 @@ namespace AIMPPL_Copy
 
             // Return found scans if any.
             return (from file in files
-                    where searchExtensions.Where(file.EndsWith).Any(ext => file != cover)
-                    select new Scan(file)).ToList();
+                where searchExtensions.Where(file.EndsWith).Any(ext => file != cover)
+                where !_skipImages.Contains(Path.GetFileName(file).ToLower())
+                select new Scan(file)).ToList();
         }
 
         /// <summary>
@@ -202,9 +252,6 @@ namespace AIMPPL_Copy
 
         public static bool SongExists(string path)
         {
-            if (_cueSheetCache == null)
-                _cueSheetCache = new Dictionary<string, CueSheet>();
-
             // Only load a CUE if the song is actually loaded from one.
             if (path.Contains(".cue:"))
             {
@@ -214,8 +261,9 @@ namespace AIMPPL_Copy
                 var index = int.Parse(parts[2]) + 1;
 
                 // Cache the CUE sheet.
-                if (!_cueSheetCache.ContainsKey(file))
-                    _cueSheetCache.Add(file, new CueSheet(file));
+                lock (_cueSheetLock)
+                    if (!_cueSheetCache.ContainsKey(file))
+                        _cueSheetCache.Add(file, new CueSheet(file));
 
                 var sheet = _cueSheetCache[file];
 
@@ -227,14 +275,9 @@ namespace AIMPPL_Copy
 
         public static Tag GetTags(string filename)
         {
-            if (_tagCache == null)
-                _tagCache = new Dictionary<string, Tag>();
-
-            if (!_tagCache.ContainsKey(filename))
-                if (File.Exists(filename))
-                    _tagCache.Add(filename, TagLib.File.Create(filename).Tag);
-                else
-                    _tagCache.Add(filename, null);
+            lock (_tagCacheLock)
+                if (!_tagCache.ContainsKey(filename))
+                    _tagCache.Add(filename, File.Exists(filename) ? TagLib.File.Create(filename).Tag : null);
 
             return _tagCache[filename];
         }
@@ -244,27 +287,37 @@ namespace AIMPPL_Copy
         /// </summary>
         /// <param name="playlist">Playlist to search.</param>
         /// <param name="missing">List to store the missing songs.</param>
-        /// <param name="formatChanged">List to store the songs with changed filetypes.</param>
+        /// <param name="formatChanges">List to store the songs with changed filetypes.</param>
         /// <returns>True if songs were missing, false if not.</returns>
-        public static bool FindMissing(Playlist playlist, out List<Song> missing, out List<FormatChange> formatChanged)
+        public static bool FindMissing(Playlist playlist, out List<Song> missing, out List<FormatChange> formatChanges)
+        {
+            return FindMissing(playlist.Songs, out missing, out formatChanges);
+        }
+
+        /// <summary>
+        ///     Finds missing songs or songs with changed filetypes in the specified songs.
+        /// </summary>
+        /// <param name="songs">Songs to search.</param>
+        /// <param name="missing">List to store the missing songs.</param>
+        /// <param name="formatChanges">List to store the songs with changed filetypes.</param>
+        /// <returns>True if songs were missing, false if not.</returns>
+        public static bool FindMissing(IEnumerable<Song> songs, out List<Song> missing, out List<FormatChange> formatChanges)
         {
             var found = false;
             missing = new List<Song>();
-            formatChanged = new List<FormatChange>();
-            var songs = playlist.Songs;
+            formatChanges = new List<FormatChange>();
 
             foreach (var song in songs)
                 if (!SongExists(song.Path))
                 {
                     var changed = false;
-                    foreach (var extension in MusicExtensions)
+                    foreach (var extension in Properties.Settings.Default.MusicExtensions)
                     {
-                        var newPath = Path.Combine(Path.GetDirectoryName(song.Path),
-                            Path.ChangeExtension(song.Path, extension));
+                        var newPath = Path.Combine(Path.GetDirectoryName(song.Path), Path.ChangeExtension(song.Path, extension));
                         // No point checking for CUE sheets here.
                         if (FileExists(newPath))
                         {
-                            formatChanged.Add(new FormatChange(song, extension));
+                            formatChanges.Add(new FormatChange(song, extension));
                             changed = true;
                             found = true;
                             break;
@@ -287,20 +340,27 @@ namespace AIMPPL_Copy
         /// <param name="directory">Directory to search in.</param>
         /// <param name="searchTags">Whether to scan tags if filename search fails.</param>
         /// <param name="searchCue">Whether to scan cue files if filename search fails.</param>
+        /// <param name="callbackAction">Callback to use to report progress.</param>
         /// <returns>Tuple of songs and found filepaths.</returns>
-        public static List<Tuple<Song, string>> SearchSongs(List<Song> missingSongs, string directory, bool searchTags,
-            bool searchCue)
+        public static List<(Song song, string file)> SearchSongsSingle(List<Song> missingSongs, string directory, bool searchTags,
+            bool searchCue, Action<SearchProgress> callbackAction = null)
         {
-            var foundSongs = new List<Tuple<Song, string>>();
+            var foundSongs = new List<(Song song, string file)>();
+            var progress = new SearchProgress(missingSongs.Count);
+            if (!(callbackAction is null))
+                callbackAction(progress);
             var files = FileUtil.GetFiles(directory);
 
+            progress.Status = SearchProgress.SearchStatus.Filenames;
+            if (!(callbackAction is null))
+                callbackAction(progress);
             // Try to find the song in the search directory.
             foreach (var song in missingSongs)
             {
                 var found = false;
                 // In theory, FLAC and MP3 files are much more likely to be found so prioritise searching by
                 // extension rather than trying each extension on each file one after the other.
-                foreach (var extension in MusicExtensions)
+                foreach (var extension in Properties.Settings.Default.MusicExtensions)
                 {
                     if (found)
                         continue;
@@ -313,16 +373,25 @@ namespace AIMPPL_Copy
                         // Update the data grid with the new filename if we found it.
                         if (Path.GetFileName(Path.ChangeExtension(song.Path, extension)) == Path.GetFileName(file))
                         {
-                            foundSongs.Add(new Tuple<Song, string>(song, file));
+                            foundSongs.Add((song, file));
                             found = true;
+
+                            if (!(callbackAction is null))
+                            {
+                                progress.FoundSongs = foundSongs.Count;
+                                callbackAction(progress);
+                            }
                         }
                     }
                 }
             }
 
+            progress.Status = SearchProgress.SearchStatus.CueSheets;
+            if (!(callbackAction is null))
+                callbackAction(progress);
             if (searchCue)
             {
-                foreach (var song in foundSongs.Select(x => x.Item1))
+                foreach (var song in foundSongs.Select(x => x.song))
                     missingSongs.Remove(song);
 
                 if (missingSongs.Count > 0)
@@ -343,9 +412,16 @@ namespace AIMPPL_Copy
                                 for (var j = 0; j < cueSheet.Tracks.Count; j++)
                                     if (String.Compare(song.Title, cueSheet.Tracks[j].Title, StringComparison.OrdinalIgnoreCase) == 0)
                                     {
-                                        foundSongs.Add(new Tuple<Song, string>(song, $"{cueFile}:{j}"));
+                                        foundSongs.Add((song, $"{cueFile}:{j}"));
                                         missingSongs.RemoveAt(i);
                                         i--;
+
+                                        if (!(callbackAction is null))
+                                        {
+                                            progress.FoundSongs = foundSongs.Count;
+                                            callbackAction(progress);
+                                        }
+
                                         break;
                                     }
                         }
@@ -353,11 +429,14 @@ namespace AIMPPL_Copy
                 }
             }
 
+            progress.Status = SearchProgress.SearchStatus.Tags;
+            if (!(callbackAction is null))
+                callbackAction(progress);
             if (searchTags)
             {
                 // As the list might have been pruned in the cue search, we can't just remove
                 // all the entries without checking first.
-                foreach (var song in foundSongs.Select(x => x.Item1))
+                foreach (var song in foundSongs.Select(x => x.song))
                     if (missingSongs.Contains(song))
                         missingSongs.Remove(song);
 
@@ -365,10 +444,10 @@ namespace AIMPPL_Copy
                 if (missingSongs.Count > 0)
                 {
                     var filteredFiles = (from file in files
-                                         let extension = Path.GetExtension(file)
-                                         where extension.Length > 1
-                                         where MusicExtensions.Contains(extension.Substring(1))
-                                         select file).ToList();
+                        let extension = Path.GetExtension(file)
+                        where extension.Length > 1
+                        where Properties.Settings.Default.MusicExtensions.Contains(extension.Substring(1))
+                        select file).ToList();
 
                     // Search through every music file found.
                     foreach (var file in filteredFiles)
@@ -386,8 +465,15 @@ namespace AIMPPL_Copy
                                 string.Compare(song.Album, tag.Album, StringComparison.OrdinalIgnoreCase) == 0)
                             {
                                 // That's probably the right song.
-                                foundSongs.Add(new Tuple<Song, string>(song, file));
+                                foundSongs.Add((song, file));
                                 missingSongs.RemoveAt(i);
+
+                                if (!(callbackAction is null))
+                                {
+                                    progress.FoundSongs = foundSongs.Count;
+                                    callbackAction(progress);
+                                }
+
                                 break;
                             }
                         }
@@ -395,7 +481,191 @@ namespace AIMPPL_Copy
                 }
             }
 
+            progress.Status = SearchProgress.SearchStatus.Complete;
+            if (!(callbackAction is null))
+                callbackAction(progress);
             return foundSongs;
+        }
+
+        private static bool DoNothing(bool wow)
+            => wow;
+
+        /// <summary>
+        ///     Searches for missing songs.
+        /// </summary>
+        /// <param name="missingSongs">List of songs to search for.</param>
+        /// <param name="directory">Directory to search in.</param>
+        /// <param name="searchTags">Whether to scan tags if filename search fails.</param>
+        /// <param name="searchCue">Whether to scan cue files if filename search fails.</param>
+        /// <param name="callbackAction">Callback to use to report progress.</param>
+        /// <returns>Tuple of songs and found filepaths.</returns>
+        public static List<(Song song, string file)> SearchSongs(List<Song> missingSongs, string directory, bool searchFilenames, bool searchTags,
+            bool searchCue, Action<SearchProgress> callbackAction = null)
+        {
+            var foundSongs = new List<(Song song, string file)>();
+            var progress = new SearchProgress(missingSongs.Count);
+            if (!(callbackAction is null))
+                callbackAction(progress);
+            var files = Directory.GetFiles(directory, "*", SearchOption.AllDirectories);
+            var _lock = new object();
+
+            progress.Status = SearchProgress.SearchStatus.Filenames;
+            if (!(callbackAction is null))
+                callbackAction(progress);
+
+            if (searchFilenames)
+            {
+                // Try to find the song in the search directory.
+                Parallel.ForEach(missingSongs, song =>
+                {
+                    var found = false;
+                    // In theory, FLAC and MP3 files are much more likely to be found so prioritise searching by
+                    // extension rather than trying each extension on each file one after the other.
+                    foreach (var extension in Properties.Settings.Default.MusicExtensions)
+                    {
+                        var songFile = Path.GetFileName(Path.ChangeExtension(song.Path, extension));
+                        if (found)
+                            continue;
+
+                        foreach (var file in files)
+                        {
+                            if (found)
+                                continue;
+
+                            // Update the data grid with the new filename if we found it.
+                            if (songFile == Path.GetFileName(file))
+                            {
+                                lock (_lock)
+                                {
+                                    foundSongs.Add((song, file));
+                                    if (!(callbackAction is null))
+                                    {
+                                        progress.FoundSongs = foundSongs.Count;
+                                        callbackAction(progress);
+                                    }
+                                }
+                                found = true;
+                            }
+                        }
+                    }
+                });
+            }
+
+            progress.Status = SearchProgress.SearchStatus.CueSheets;
+            if (!(callbackAction is null))
+                callbackAction(progress);
+            if (searchCue)
+            {
+                foreach (var song in foundSongs.Select(x => x.song))
+                    missingSongs.Remove(song);
+
+                if (missingSongs.Count > 0)
+                {
+                    var filteredFiles = files.Where(x => String.Compare(Path.GetExtension(x), ".cue", StringComparison.OrdinalIgnoreCase) == 0);
+
+                    //foreach (var cueFile in filteredFiles)
+                    Parallel.ForEach(filteredFiles, cueFile =>
+                    {
+                        if (missingSongs.Count == 0)
+                            return;
+
+                        lock (_cueSheetLock)
+                            if (!_cueSheetCache.ContainsKey(cueFile))
+                                _cueSheetCache.Add(cueFile, new CueSheet(cueFile));
+
+                        var cueSheet = _cueSheetCache[cueFile];
+
+                        foreach (var song in missingSongs)
+                        {
+                            if (String.Compare(song.Album, cueSheet.Album, StringComparison.OrdinalIgnoreCase) == 0)
+                                for (var j = 0; j < cueSheet.Tracks.Count; j++)
+                                    if (String.Compare(song.Title, cueSheet.Tracks[j].Title,
+                                            StringComparison.OrdinalIgnoreCase) == 0)
+                                    {
+                                        lock (_lock)
+                                        {
+                                            foundSongs.Add((song, $"{cueFile}:{j}"));
+                                            if (!(callbackAction is null))
+                                            {
+                                                progress.FoundSongs = foundSongs.Count;
+                                                callbackAction(progress);
+                                            }
+                                        }
+                                        break;
+                                    }
+                        }
+                    });
+                }
+            }
+
+            progress.Status = SearchProgress.SearchStatus.Tags;
+            if (!(callbackAction is null))
+                callbackAction(progress);
+            if (searchTags)
+            {
+                // As the list might have been pruned in the cue search, we can't just remove
+                // all the entries without checking first.
+                foreach (var song in foundSongs.Select(x => x.song))
+                    if (missingSongs.Contains(song))
+                        missingSongs.Remove(song);
+
+                // Songs that couldn't be found from path alone.
+                if (missingSongs.Count > 0)
+                {
+                    var filteredFiles = (from file in files
+                                         let extension = Path.GetExtension(file)
+                                         where extension.Length > 1
+                                         where Properties.Settings.Default.MusicExtensions.Contains(extension.Substring(1))
+                                         select file).ToList();
+
+                    // Search through every music file found.
+                    var localFoundSongs = new List<(Song song, string file)>();
+                    foreach (var file in filteredFiles)
+                    {
+                        // No point loading tags if all songs have been found already.
+                        if (missingSongs.Count == 0)
+                            break;
+
+                        var tag = GetTags(file);
+                        localFoundSongs.Clear();
+
+                        foreach (var song in missingSongs)
+                        //Parallel.ForEach(missingSongs, song =>
+                        {
+                            if (string.Equals(song.Title, tag.Title, StringComparison.OrdinalIgnoreCase) &&
+                                string.Equals(song.Album, tag.Album, StringComparison.OrdinalIgnoreCase))
+                            {
+                                // That's probably the right song.
+                                lock (_lock)
+                                {
+                                    localFoundSongs.Add((song, file));
+                                }
+                            }
+                        }//);
+
+                        foundSongs.AddRange(localFoundSongs);
+                        if (!(callbackAction is null))
+                        {
+                            progress.FoundSongs = foundSongs.Count;
+                            callbackAction(progress);
+                        }
+                        missingSongs = missingSongs.Except(foundSongs.Select(x => x.song)).ToList();
+                    }
+                }
+            }
+
+            progress.Status = SearchProgress.SearchStatus.Complete;
+            if (!(callbackAction is null))
+                callbackAction(progress);
+            return foundSongs;
+        }
+
+        public static string GetDirectory(this string path)
+        {
+            var lastIndex = path.LastIndexOf('\\');
+            if (lastIndex == -1)
+                lastIndex = path.LastIndexOf('/');
+            return lastIndex == -1 ? null : path.Substring(lastIndex + 1);
         }
     }
 }

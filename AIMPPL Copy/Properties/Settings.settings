@@ -1,14 +1,24 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)"
-              GeneratedClassNamespace="AIMPPL_Copy.Properties" GeneratedClassName="Settings">
-    <Profiles />
-    <Settings>
-        <Setting Name="PlaylistPath" Type="System.String" Scope="User">
-            <Value Profile="(Default)">&lt;default&gt;</Value>
-        </Setting>
-        <Setting Name="DestinationPath" Type="System.String" Scope="User">
-            <Value Profile="(Default)">&lt;default&gt;</Value>
-        </Setting>
-    </Settings>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="AIMPPL_Copy.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="PlaylistPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">&lt;default&gt;</Value>
+    </Setting>
+    <Setting Name="DestinationPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">&lt;default&gt;</Value>
+    </Setting>
+    <Setting Name="MusicExtensions" Type="System.Collections.Specialized.StringCollection" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="ScanFilenames" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="ScanCues" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="ScanTags" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+  </Settings>
 </SettingsFile>

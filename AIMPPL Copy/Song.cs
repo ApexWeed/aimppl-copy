@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 
 namespace AIMPPL_Copy
 {
@@ -142,6 +143,19 @@ namespace AIMPPL_Copy
             }
         }
 
+        private string _filename;
+        public virtual string Filename
+        {
+            get
+            {
+                if (_filename is null || _filename.Length == 0)
+                {
+                    _filename = System.IO.Path.GetFileName(Path);
+                }
+                return _filename;
+            }
+        }
+
         public virtual string Group
         {
             get
@@ -187,11 +201,15 @@ namespace AIMPPL_Copy
 
         public static bool operator ==(Song a, Song b)
         {
+            if (a is null)
+                return false;
             return a.Equals(b);
         }
 
         public static bool operator !=(Song a, Song b)
         {
+            if (a is null)
+                return false;
             return !a.Equals(b);
         }
     }

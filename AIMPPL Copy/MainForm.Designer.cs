@@ -39,6 +39,8 @@
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.upgradePlaylistsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.upgradeAllPlaylistsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.statisticsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fixDatabaseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.chkBulkMode = new Apex.Translation.Controls.TranslatableCheckBox();
             this.btnFixPlaylist = new Apex.Translation.Controls.TranslatableButton();
             this.pgbProgress = new Apex.Controls.InfoProgressBar();
@@ -71,7 +73,7 @@
             this.MainTitle = new Apex.Translation.Controls.TranslatableTitle();
             this.TooltipTranslator = new Apex.Translation.Controls.TranslatableTooltips();
             this.MenuItemTranslation = new Apex.Translation.Controls.TranslatableMenuItem();
-            this.statisticsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuStrip.SuspendLayout();
             this.grpGroup.SuspendLayout();
             this.grpSong.SuspendLayout();
@@ -121,6 +123,8 @@
             // fileToolStripMenuItem
             // 
             this.MenuItemTranslation.SetDefaultString(this.fileToolStripMenuItem, "");
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.settingsToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "&File";
@@ -132,7 +136,8 @@
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.upgradePlaylistsToolStripMenuItem,
             this.upgradeAllPlaylistsToolStripMenuItem,
-            this.statisticsToolStripMenuItem});
+            this.statisticsToolStripMenuItem,
+            this.fixDatabaseToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
             this.toolsToolStripMenuItem.Text = "&Tools";
@@ -155,6 +160,24 @@
             this.upgradeAllPlaylistsToolStripMenuItem.Text = "Upgrade &All Playlists";
             this.MenuItemTranslation.SetTranslationString(this.upgradeAllPlaylistsToolStripMenuItem, "MAIN.LABEL.UPGRADE_ALL_PLAYLISTS");
             this.upgradeAllPlaylistsToolStripMenuItem.Click += new System.EventHandler(this.upgradeAllPlaylistsToolStripMenuItem_Click);
+            // 
+            // statisticsToolStripMenuItem
+            // 
+            this.MenuItemTranslation.SetDefaultString(this.statisticsToolStripMenuItem, "");
+            this.statisticsToolStripMenuItem.Name = "statisticsToolStripMenuItem";
+            this.statisticsToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.statisticsToolStripMenuItem.Text = "&Statistics";
+            this.MenuItemTranslation.SetTranslationString(this.statisticsToolStripMenuItem, "MAIN.LABEL.STATISTICS");
+            this.statisticsToolStripMenuItem.Click += new System.EventHandler(this.statisticsToolStripMenuItem_Click);
+            // 
+            // fixDatabaseToolStripMenuItem
+            // 
+            this.MenuItemTranslation.SetDefaultString(this.fixDatabaseToolStripMenuItem, "");
+            this.fixDatabaseToolStripMenuItem.Name = "fixDatabaseToolStripMenuItem";
+            this.fixDatabaseToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.fixDatabaseToolStripMenuItem.Text = "Fix &Database";
+            this.MenuItemTranslation.SetTranslationString(this.fixDatabaseToolStripMenuItem, "MAIN.LABEL.FIX_DATABASE");
+            this.fixDatabaseToolStripMenuItem.Click += new System.EventHandler(this.fixDatabaseToolStripMenuItem_Click);
             // 
             // chkBulkMode
             // 
@@ -527,14 +550,14 @@
             this.TooltipTranslator.ToolTips = this.Tooltips;
             this.TooltipTranslator.TranslationStrings = ((System.Collections.Generic.Dictionary<System.Windows.Forms.Control, string>)(resources.GetObject("TooltipTranslator.TranslationStrings")));
             // 
-            // statisticsToolStripMenuItem
+            // settingsToolStripMenuItem
             // 
-            this.MenuItemTranslation.SetDefaultString(this.statisticsToolStripMenuItem, "");
-            this.statisticsToolStripMenuItem.Name = "statisticsToolStripMenuItem";
-            this.statisticsToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
-            this.statisticsToolStripMenuItem.Text = "&Statistics";
-            this.MenuItemTranslation.SetTranslationString(this.statisticsToolStripMenuItem, "MAIN.LABEL.STATISTICS");
-            this.statisticsToolStripMenuItem.Click += new System.EventHandler(this.statisticsToolStripMenuItem_Click);
+            this.MenuItemTranslation.SetDefaultString(this.settingsToolStripMenuItem, "");
+            this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.settingsToolStripMenuItem.Text = "&Settings";
+            this.MenuItemTranslation.SetTranslationString(this.settingsToolStripMenuItem, "MAIN.LABEL.SETTINGS");
+            this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -618,6 +641,8 @@
         private Apex.Translation.Controls.TranslatableMenuItem MenuItemTranslation;
         private System.Windows.Forms.ToolStripMenuItem upgradeAllPlaylistsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem statisticsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem fixDatabaseToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
     }
 }
 
